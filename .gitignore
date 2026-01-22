@@ -1,21 +1,30 @@
-# Exclude everything by default
-*
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyc
 
-# But include UI files
-!.gitignore
-!README.md
+# Exclude all Python files
+*.py
 
-# Include templates folder
-!templates/
-!templates/*.html
+# Exclude backend folders
+logic/
+database/
+utils/
+data/
+api/
 
-# Include static folder
-!static/
-!static/css/
-!static/css/*.css
-!static/js/
-!static/js/*.js
+# Exclude database files
+*.db
+*.sqlite
+*.sqlite3
 
-# Include static assets if any
-!static/images/
-!static/images/*
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
