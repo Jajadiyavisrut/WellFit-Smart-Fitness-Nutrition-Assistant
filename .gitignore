@@ -1,0 +1,21 @@
+# Exclude everything by default
+*
+
+# But include UI files
+!.gitignore
+!README.md
+
+# Include templates folder
+!templates/
+!templates/*.html
+
+# Include static folder
+!static/
+!static/css/
+!static/css/*.css
+!static/js/
+!static/js/*.js
+
+# Include static assets if any
+!static/images/
+!static/images/*

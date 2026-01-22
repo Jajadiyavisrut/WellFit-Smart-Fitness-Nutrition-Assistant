@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Profile - WellFit</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <h1>Your Profile</h1>
+        <p>Tell us about yourself to get personalized plans</p>
+
+        <div id="message" class="message"></div>
+
+        <form onsubmit="saveProfile(event)">
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="age">Age</label>
+                    <input type="number" id="age" required min="15" max="100" placeholder="25">
+                </div>
+
+                <div class="form-group">
+                    <label for="gender">Gender</label>
+                    <select id="gender" required>
+                        <option value="">Select...</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="height_cm">Height (cm)</label>
+                    <input type="number" id="height_cm" required min="100" max="250" placeholder="175">
+                </div>
+
+                <div class="form-group">
+                    <label for="weight_kg">Weight (kg)</label>
+                    <input type="number" id="weight_kg" required min="30" max="300" placeholder="70">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="fitness_goal">Fitness Goal</label>
+                <select id="fitness_goal" required>
+                    <option value="">Select...</option>
+                    <option value="lose_weight">Lose Weight</option>
+                    <option value="maintain">Maintain Weight</option>
+                    <option value="gain_muscle">Gain Muscle</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="experience_level">Experience Level</label>
+                <select id="experience_level" required>
+                    <option value="">Select...</option>
+                    <option value="beginner">Beginner</option>
+                    <option value="intermediate">Intermediate</option>
+                </select>
+            </div>
+
+            <div class="grid-2">
+                <div class="form-group">
+                    <label for="workout_days">Workout Days/Week</label>
+                    <input type="number" id="workout_days" required min="0" max="7" placeholder="3">
+                </div>
+
+                <div class="form-group">
+                    <label for="workout_time">Workout Time (min)</label>
+                    <input type="number" id="workout_time" required min="20" max="120" placeholder="60">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="diet_type">Diet Type</label>
+                <select id="diet_type" required>
+                    <option value="">Select...</option>
+                    <option value="veg">Vegetarian</option>
+                    <option value="non-veg">Non-Vegetarian</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="monthly_budget">Monthly Budget (Rs.)</label>
+                <input type="number" id="monthly_budget" required min="1000" placeholder="6000">
+            </div>
+
+            <button type="submit">Save Profile & Continue</button>
+        </form>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
