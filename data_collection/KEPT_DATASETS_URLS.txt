@@ -1,0 +1,65 @@
+WellFit - Kept Dataset URLs
+===========================
+
+FITNESS & EXERCISE DATASETS (19):
+--------------------------------------------------
+https://www.kaggle.com/datasets/exercisedb/fitness-exercises-dataset
+https://www.kaggle.com/datasets/evan65549/health-and-fitness-dataset
+https://www.kaggle.com/datasets/niharika41298/gym-exercise-data
+https://www.kaggle.com/datasets/peshimaammuzammil/the-ultimate-gym-exercises-dataset-for-all-levels
+https://www.kaggle.com/datasets/valakhorasani/gym-members-exercise-dataset
+https://www.kaggle.com/datasets/justinas/bodybuilding-exercises
+https://www.kaggle.com/datasets/mgmarques/workouts-exercises-and-muscles-involved-dataset
+https://www.kaggle.com/datasets/monisamir/myfitnesspal-exercise-database
+https://www.kaggle.com/datasets/dansbecker/powerlifting-database
+https://www.kaggle.com/datasets/open-powerlifting/powerlifting-database
+https://www.kaggle.com/datasets/jtrofe/powerlifting-database
+https://www.kaggle.com/datasets/rtatman/powerlifting-database
+https://www.kaggle.com/datasets/niharika41298/yoga-poses-dataset
+https://www.kaggle.com/datasets/shivamb/yoga-pose-image-classification-dataset
+https://www.kaggle.com/datasets/tr1gg3rtrash/yoga-posture-dataset
+https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results
+https://www.kaggle.com/datasets/mysarahmadbhat/120-years-of-olympic-history-athletes-and-results
+https://www.kaggle.com/datasets/the-guardian/olympic-games
+https://www.kaggle.com/datasets/rtatman/olympic-games-medals-19862018
+
+FITNESS TRACKING DATASETS (5):
+--------------------------------------------------
+https://www.kaggle.com/datasets/arashnic/fitbit-fitness-tracker-data
+https://www.kaggle.com/datasets/alejopaullier/fitness-tracker
+https://www.kaggle.com/datasets/devsubhash/fitness-tracker-dataset
+https://www.kaggle.com/datasets/sid321axn/step-counter-data
+https://www.kaggle.com/datasets/sootersaalu/steps-data
+
+NUTRITION & FOOD DATASETS (9):
+--------------------------------------------------
+https://www.kaggle.com/datasets/batthulavinay/indian-food-nutrition
+https://www.kaggle.com/datasets/kkhandekar/calories-in-food-items-per-100-grams
+https://www.kaggle.com/datasets/stoicstatic/fooddata-central-nutrition-and-component-data
+https://www.kaggle.com/datasets/openfoodfacts/world-food-facts
+https://www.kaggle.com/datasets/datafiniti/food-ingredient-lists
+https://www.kaggle.com/datasets/nehaprabhavalkar/indian-food-101
+https://www.kaggle.com/datasets/kanishk307/indian-food-images-dataset
+https://www.kaggle.com/datasets/schemersays/indian-food-classification
+https://www.kaggle.com/datasets/soumikrakshit/indian-food-images-dataset
+
+FITNESS RECIPES & MEAL PLANNING (9):
+--------------------------------------------------
+https://www.kaggle.com/datasets/shuyangli94/food-com-recipes-and-user-interactions
+https://www.kaggle.com/datasets/irkaal/foodcom-recipes-and-reviews
+https://www.kaggle.com/datasets/kanishk307/recipe-ingredients-dataset
+https://www.kaggle.com/datasets/schemersays/recipe-ingredients-dataset
+https://www.kaggle.com/datasets/hugodarwood/epirecipes
+https://www.kaggle.com/datasets/sterby/indian-recipes-dataset
+https://www.kaggle.com/datasets/schemersays/food-recommendation-system
+https://www.kaggle.com/datasets/borapajo/food-choices-and-preferences-of-college-students
+https://www.kaggle.com/datasets/dansbecker/food-demand-forecasting
+
+PAIN & RECOVERY DATASETS (3):
+--------------------------------------------------
+https://www.kaggle.com/datasets/danagerous/sleep-data
+https://www.kaggle.com/datasets/mlomuscio/sleepdata
+https://www.kaggle.com/datasets/arashnic/sleep-posture-analysis
+
+TOTAL KEPT DATASETS: 45
+FOCUS: Fitness, Exercise, Nutrition, Fitness Recipes, Pain Prevention
