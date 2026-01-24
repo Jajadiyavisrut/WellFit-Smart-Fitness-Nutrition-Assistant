@@ -246,7 +246,7 @@ function displayDietPlan(dietPlan) {
     container.innerHTML = html;
 }
 
-// Display workout plan
+// Display workout plan - UPDATED to show all days
 function displayWorkoutPlan(workoutPlan) {
     if (!workoutPlan) return;
 
@@ -256,14 +256,23 @@ function displayWorkoutPlan(workoutPlan) {
     let html = `<p><strong>Split:</strong> ${plan.split_type}</p>`;
 
     if (plan.weekly_plan && plan.weekly_plan.length > 0) {
-        const today = plan.weekly_plan[0];
-        html += `<h4>${today.day}</h4>`;
+        // Show all days in the weekly plan
+        plan.weekly_plan.forEach((day, index) => {
+            html += `<div class="workout-day" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+                <h4 style="color: #667eea; margin-bottom: 10px;">${day.day_name}</h4>`;
 
-        today.exercises.forEach(ex => {
-            html += `<div class="exercise-item">
-                <strong>${ex.name}</strong>
-                <span>${ex.sets} sets × ${ex.reps} reps | Rest: ${ex.rest_seconds}s</span>
-            </div>`;
+            if (day.exercises && day.exercises.length > 0) {
+                day.exercises.forEach(ex => {
+                    html += `<div class="exercise-item">
+                        <strong>${ex.name}</strong>
+                        <span>${ex.sets} sets × ${ex.reps} reps | Rest: ${ex.rest_seconds}s</span>
+                    </div>`;
+                });
+            } else {
+                html += `<p style="color: #666; font-style: italic;">Rest Day</p>`;
+            }
+
+            html += `</div>`;
         });
     }
 
@@ -307,7 +316,11 @@ async function adaptWorkout(event) {
 }
 
 // Show pain adaptation alert
+// Show pain adaptation alert and modified workout
 function showPainAlert(data) {
+    // Show the result container
+    document.getElementById('painResult').style.display = 'block';
+
     const alert = document.getElementById('painAlert');
     alert.innerHTML = `
         <strong>Workout Adapted for ${data.affected_body_part || 'Pain'}</strong>
@@ -316,6 +329,22 @@ function showPainAlert(data) {
         <p><em>${data.immediate_action}</em></p>
     `;
     alert.style.display = 'block';
+
+    // Render the exercises
+    const listContainer = document.getElementById('adaptedExercises');
+    if (data.modified_workout && data.modified_workout.length > 0) {
+        let html = '';
+        data.modified_workout.forEach(ex => {
+            html += `<div class="exercise-item" style="border-left: 4px solid #48bb78; background: #f0fff4;">
+                <strong>${ex.name}</strong>
+                <span>${ex.sets} sets × ${ex.reps} reps | Rest: ${ex.rest_seconds}s</span>
+                ${ex.instructions ? `<p style="font-size:0.85rem; color:#666; margin-top:5px;">${ex.instructions}</p>` : ''}
+            </div>`;
+        });
+        listContainer.innerHTML = html;
+    } else {
+        listContainer.innerHTML = '<p>No exercises for today (Rest Day).</p>';
+    }
 }
 
 // Toggle profile dropdown
@@ -349,3 +378,80 @@ async function logout() {
         window.location.href = '/login.html';
     }
 }
+
+// Chatbot for workout modifications
+let chatHistory = [];
+
+async function sendChatMessage() {
+    const input = document.getElementById('chatInput');
+    const message = input.value.trim();
+
+    if (!message) return;
+
+    // Add user message to chat
+    addChatMessage('user', message);
+    input.value = '';
+
+    // Show typing indicator
+    const chatMessages = document.getElementById('chatMessages');
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'chat-message bot typing';
+    typingDiv.innerHTML = '<span>Typing...</span>';
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    try {
+        const response = await fetch(`${API_BASE}/api/chat-workout`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ message: message, history: chatHistory })
+        });
+
+        const data = await response.json();
+
+        // Remove typing indicator
+        typingDiv.remove();
+
+        if (response.ok) {
+            addChatMessage('bot', data.response);
+            chatHistory.push({ user: message, bot: data.response });
+
+            // If workout was modified, reload the plan
+            if (data.workout_modified) {
+                loadTodayPlan();
+            }
+        } else {
+            addChatMessage('bot', 'Sorry, I encountered an error. Please try again.');
+        }
+    } catch (error) {
+        typingDiv.remove();
+        addChatMessage('bot', 'Network error. Please check your connection.');
+    }
+}
+
+function addChatMessage(sender, message) {
+    const chatMessages = document.getElementById('chatMessages');
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `chat-message ${sender}`;
+    messageDiv.innerHTML = `<span>${message}</span>`;
+    chatMessages.appendChild(messageDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+
+function toggleChat() {
+    const chatbot = document.getElementById('chatbot');
+    chatbot.style.display = chatbot.style.display === 'none' ? 'flex' : 'none';
+}
+
+// Handle Enter key in chat input
+document.addEventListener('DOMContentLoaded', () => {
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+    }
+});

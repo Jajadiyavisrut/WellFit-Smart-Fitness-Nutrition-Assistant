@@ -80,7 +80,7 @@
         <p>Your personalized fitness and nutrition hub</p>
 
         <div id="message" class="message"></div>
-        <div id="painAlert" class="pain-alert" style="display: none;"></div>
+
 
         <button onclick="generatePlans()" id="generateBtn">Generate New Plan</button>
 
@@ -89,7 +89,7 @@
             <p class="loading">Loading...</p>
         </div>
 
-        <h2>Today's Workout</h2>
+        <h2>Your Workout Plan</h2>
         <div id="workoutPlan" class="plan-section">
             <p class="loading">Loading...</p>
         </div>
@@ -104,8 +104,81 @@
                 </div>
                 <button type="submit">Adapt Workout</button>
             </form>
+
+            <div id="painResult"
+                style="display: none; margin-top: 20px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;">
+                <div id="painAlert" class="pain-alert"
+                    style="margin: 0; border: none; border-bottom: 1px solid #e2e8f0; border-radius: 0;"></div>
+                <div style="padding: 15px;">
+                    <h3 style="margin-top: 0; color: #2d3748; font-size: 1.1rem;">Adapted Workout for Today</h3>
+                    <div id="adaptedExercises"></div>
+                </div>
+            </div>
         </div>
     </div>
+
+    <!-- Chatbot Interface -->
+    <div id="chatbot"
+        style="display: none; position: fixed; bottom: 80px; right: 20px; width: 350px; height: 500px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: flex; flex-direction: column; z-index: 1000;">
+        <div
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
+            <h3 style="margin: 0; font-size: 16px;">💬 Workout Assistant</h3>
+            <button onclick="toggleChat()"
+                style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">×</button>
+        </div>
+        <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #f8f9fa;">
+            <div class="chat-message bot">
+                <span>Hi! I can help you modify your workout. Try saying things like:<br>
+                    - "I want to focus more on arms"<br>
+                    - "Make the workout easier"<br>
+                    - "Add more cardio"<br>
+                    - "I have shoulder pain"</span>
+            </div>
+        </div>
+        <div style="padding: 15px; border-top: 1px solid #ddd; background: white; border-radius: 0 0 12px 12px;">
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="chatInput" placeholder="Type your message..."
+                    style="flex: 1; padding: 12px 15px; border: 2px solid #5a67d8; background-color: #f0f4f8; border-radius: 25px; outline: none; color: #1a202c; font-size: 14px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                <button onclick="sendChatMessage()"
+                    style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Send</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Button -->
+    <button onclick="toggleChat()"
+        style="position: fixed; bottom: 20px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-size: 24px; cursor: pointer; box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 999;">
+        💬
+    </button>
+
+    <style>
+        .chat-message {
+            margin-bottom: 12px;
+            padding: 10px 14px;
+            border-radius: 12px;
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+
+        .chat-message.user {
+            background: #667eea;
+            color: white;
+            margin-left: auto;
+            text-align: right;
+        }
+
+        .chat-message.bot {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+        }
+
+        .chat-message.typing {
+            background: #f0f0f0;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
 
     <script src="/static/js/app.js"></script>
     <script>
