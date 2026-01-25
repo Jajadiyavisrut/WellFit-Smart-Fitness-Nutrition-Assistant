@@ -84,34 +84,60 @@
 
         <button onclick="generatePlans()" id="generateBtn">Generate New Plan</button>
 
-        <h2>Today's Diet Plan</h2>
-        <div id="dietPlan" class="plan-section">
-            <p class="loading">Loading...</p>
+        <!-- Toggle Buttons -->
+        <div
+            style="display: flex; gap: 10px; margin: 20px 0; background: #f8f9fa; padding: 8px; border-radius: 12px; width: fit-content;">
+            <button id="dietToggle" onclick="showPlan('diet')"
+                style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; background: #667eea; color: white; transition: all 0.3s;">
+                🍽️ Diet Plan
+            </button>
+            <button id="workoutToggle" onclick="showPlan('workout')"
+                style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; background: transparent; color: #666; transition: all 0.3s;">
+                💪 Workout Plan
+            </button>
+            <button id="painToggle" onclick="showPlan('pain')"
+                style="padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; font-size: 15px; background: transparent; color: #666; transition: all 0.3s;">
+                🩹 Pain or Discomfort
+            </button>
         </div>
 
-        <h2>Your Workout Plan</h2>
-        <div id="workoutPlan" class="plan-section">
-            <p class="loading">Loading...</p>
+        <!-- Diet Plan Section -->
+        <div id="dietPlanSection" style="display: block;">
+            <h2>Today's Diet Plan</h2>
+            <div id="dietPlan" class="plan-section">
+                <p class="loading">Loading...</p>
+            </div>
         </div>
 
-        <h2>Pain or Discomfort?</h2>
-        <div class="plan-section">
-            <p style="margin-bottom: 15px;">Report any pain to adapt your workout safely</p>
-            <form onsubmit="adaptWorkout(event)">
-                <div class="form-group">
-                    <label for="painText">Describe your pain</label>
-                    <textarea id="painText" rows="3" placeholder="e.g., I have knee pain when squatting"></textarea>
-                </div>
-                <button type="submit">Adapt Workout</button>
-            </form>
+        <!-- Workout Plan Section -->
+        <div id="workoutPlanSection" style="display: none;">
+            <h2>Your Workout Plan</h2>
+            <div id="workoutPlan" class="plan-section">
+                <p class="loading">Loading...</p>
+            </div>
+        </div>
 
-            <div id="painResult"
-                style="display: none; margin-top: 20px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;">
-                <div id="painAlert" class="pain-alert"
-                    style="margin: 0; border: none; border-bottom: 1px solid #e2e8f0; border-radius: 0;"></div>
-                <div style="padding: 15px;">
-                    <h3 style="margin-top: 0; color: #2d3748; font-size: 1.1rem;">Adapted Workout for Today</h3>
-                    <div id="adaptedExercises"></div>
+        <!-- Pain or Discomfort Section -->
+        <div id="painPlanSection" style="display: none;">
+            <h2>Pain or Discomfort?</h2>
+            <div class="plan-section">
+                <p style="margin-bottom: 15px;">Report any pain to adapt your workout safely</p>
+                <form onsubmit="adaptWorkout(event)">
+                    <div class="form-group">
+                        <label for="painText">Describe your pain</label>
+                        <textarea id="painText" rows="3" placeholder="e.g., I have knee pain when squatting"></textarea>
+                    </div>
+                    <button type="submit">Adapt Workout</button>
+                </form>
+
+                <div id="painResult"
+                    style="display: none; margin-top: 20px; background: #fff; border-radius: 8px; border: 1px solid #e2e8f0; overflow: hidden;">
+                    <div id="painAlert" class="pain-alert"
+                        style="margin: 0; border: none; border-bottom: 1px solid #e2e8f0; border-radius: 0;"></div>
+                    <div style="padding: 15px;">
+                        <h3 style="margin-top: 0; color: #2d3748; font-size: 1.1rem;">Adapted Workout for Today</h3>
+                        <div id="adaptedExercises"></div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -119,28 +145,76 @@
 
     <!-- Chatbot Interface -->
     <div id="chatbot"
-        style="display: none; position: fixed; bottom: 80px; right: 20px; width: 350px; height: 500px; background: white; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); display: flex; flex-direction: column; z-index: 1000;">
+        style="display: none; position: fixed; bottom: 80px; right: 20px; width: 380px; height: 550px; background: white; border-radius: 16px; box-shadow: 0 8px 32px rgba(0,0,0,0.15); display: flex; flex-direction: column; z-index: 1000; overflow: hidden;">
+        <!-- Header with Bicep Icon -->
         <div
-            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px; border-radius: 12px 12px 0 0; display: flex; justify-content: space-between; align-items: center;">
-            <h3 style="margin: 0; font-size: 16px;">💬 Workout Assistant</h3>
-            <button onclick="toggleChat()"
-                style="background: none; border: none; color: white; font-size: 20px; cursor: pointer;">×</button>
-        </div>
-        <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 15px; background: #f8f9fa;">
-            <div class="chat-message bot">
-                <span>Hi! I can help you modify your workout. Try saying things like:<br>
-                    - "I want to focus more on arms"<br>
-                    - "Make the workout easier"<br>
-                    - "Add more cardio"<br>
-                    - "I have shoulder pain"</span>
+            style="background: #1e88e5; color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div
+                    style="background: white; width: 48px; height: 48px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px;">
+                    💪
+                </div>
+                <h3 style="margin: 0; font-size: 20px; font-weight: 600;">WellFit Assistant</h3>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button onclick="toggleChat()"
+                    style="background: none; border: none; color: white; font-size: 24px; cursor: pointer; padding: 0; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;">×</button>
             </div>
         </div>
-        <div style="padding: 15px; border-top: 1px solid #ddd; background: white; border-radius: 0 0 12px 12px;">
-            <div style="display: flex; gap: 10px;">
+
+        <!-- Chat Messages Area -->
+        <div id="chatMessages" style="flex: 1; overflow-y: auto; padding: 20px; background: #f5f5f5;">
+            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                <div
+                    style="background: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                    💪
+                </div>
+                <div
+                    style="background: white; padding: 12px 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); max-width: 75%;">
+                    <p style="margin: 0; color: #333; line-height: 1.5;">Hi! Welcome to WellFit. I'll be assisting you
+                        here today.</p>
+                </div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                <div
+                    style="background: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                    💪
+                </div>
+                <div
+                    style="background: white; padding: 12px 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); max-width: 75%;">
+                    <p style="margin: 0 0 12px 0; color: #333; line-height: 1.5;">How can I help you today?</p>
+                    <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                        <button
+                            onclick="document.getElementById('chatInput').value='I want to focus more on arms'; sendChatMessage();"
+                            style="background: white; border: 2px solid #1e88e5; color: #1e88e5; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500;">Focus
+                            on arms</button>
+                        <button
+                            onclick="document.getElementById('chatInput').value='Make the workout easier'; sendChatMessage();"
+                            style="background: white; border: 2px solid #1e88e5; color: #1e88e5; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500;">Easier
+                            workout</button>
+                        <button
+                            onclick="document.getElementById('chatInput').value='I have shoulder pain'; sendChatMessage();"
+                            style="background: white; border: 2px solid #1e88e5; color: #1e88e5; padding: 8px 16px; border-radius: 20px; cursor: pointer; font-size: 13px; font-weight: 500;">Report
+                            pain</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Input Area -->
+        <div style="padding: 16px; background: white; border-top: 1px solid #e0e0e0;">
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 12px;">
                 <input type="text" id="chatInput" placeholder="Type your message..."
-                    style="flex: 1; padding: 12px 15px; border: 2px solid #5a67d8; background-color: #f0f4f8; border-radius: 25px; outline: none; color: #1a202c; font-size: 14px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);">
+                    style="flex: 1; padding: 14px 18px; border: 2px solid #e0e0e0; background-color: #ffffff; border-radius: 24px; outline: none; color: #000000; font-size: 15px; transition: border-color 0.3s;"
+                    onfocus="this.style.borderColor='#1e88e5'" onblur="this.style.borderColor='#e0e0e0'">
                 <button onclick="sendChatMessage()"
-                    style="background: #667eea; color: white; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer;">Send</button>
+                    style="background: #1e88e5; color: white; border: none; padding: 0; width: 44px; height: 44px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 20px; transition: background 0.3s;"
+                    onmouseover="this.style.background='#1976d2'"
+                    onmouseout="this.style.background='#1e88e5'">➤</button>
+            </div>
+            <!-- Powered by WellFit -->
+            <div style="text-align: center; color: #999; font-size: 13px;">
+                Chat 💪 <span style="color: #1e88e5; font-weight: 600;">powered by WellFit</span>
             </div>
         </div>
     </div>
