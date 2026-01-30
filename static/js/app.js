@@ -392,13 +392,27 @@ async function sendChatMessage() {
     addChatMessage('user', message);
     input.value = '';
 
+
     // Show typing indicator
     const chatMessages = document.getElementById('chatMessages');
     const typingDiv = document.createElement('div');
-    typingDiv.className = 'chat-message bot typing';
-    typingDiv.innerHTML = '<span>Typing...</span>';
+    typingDiv.id = 'typingIndicator';
+    typingDiv.style.cssText = 'display: flex; gap: 10px; margin-bottom: 16px;';
+    typingDiv.innerHTML = `
+        <div style="background: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+            💪
+        </div>
+        <div style="background: white; padding: 12px 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+            <div style="display: flex; gap: 4px; align-items: center;">
+                <div style="width: 8px; height: 8px; background: #999; border-radius: 50%; animation: typing 1.4s infinite;"></div>
+                <div style="width: 8px; height: 8px; background: #999; border-radius: 50%; animation: typing 1.4s infinite 0.2s;"></div>
+                <div style="width: 8px; height: 8px; background: #999; border-radius: 50%; animation: typing 1.4s infinite 0.4s;"></div>
+            </div>
+        </div>
+    `;
     chatMessages.appendChild(typingDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
+
 
     try {
         const response = await fetch(`${API_BASE}/api/chat-workout`, {
@@ -433,8 +447,26 @@ async function sendChatMessage() {
 function addChatMessage(sender, message) {
     const chatMessages = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
-    messageDiv.className = `chat-message ${sender}`;
-    messageDiv.innerHTML = `<span>${message}</span>`;
+
+    if (sender === 'bot') {
+        messageDiv.style.cssText = 'display: flex; gap: 10px; margin-bottom: 16px;';
+        messageDiv.innerHTML = `
+            <div style="background: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
+                💪
+            </div>
+            <div style="background: white; padding: 12px 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); max-width: 75%;">
+                <p style="margin: 0; color: #333; line-height: 1.5;">${message}</p>
+            </div>
+        `;
+    } else {
+        messageDiv.style.cssText = 'display: flex; gap: 10px; margin-bottom: 16px; justify-content: flex-end;';
+        messageDiv.innerHTML = `
+            <div style="background: #1e88e5; padding: 12px 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); max-width: 75%;">
+                <p style="margin: 0; color: white; line-height: 1.5;">${message}</p>
+            </div>
+        `;
+    }
+
     chatMessages.appendChild(messageDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }
@@ -455,3 +487,41 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
+
+// Toggle between diet, workout, and pain plans
+function showPlan(planType) {
+    const dietSection = document.getElementById('dietPlanSection');
+    const workoutSection = document.getElementById('workoutPlanSection');
+    const painSection = document.getElementById('painPlanSection');
+    const dietToggle = document.getElementById('dietToggle');
+    const workoutToggle = document.getElementById('workoutToggle');
+    const painToggle = document.getElementById('painToggle');
+
+    // Hide all sections
+    dietSection.style.display = 'none';
+    workoutSection.style.display = 'none';
+    painSection.style.display = 'none';
+
+    // Reset all button styles
+    dietToggle.style.background = 'transparent';
+    dietToggle.style.color = '#666';
+    workoutToggle.style.background = 'transparent';
+    workoutToggle.style.color = '#666';
+    painToggle.style.background = 'transparent';
+    painToggle.style.color = '#666';
+
+    // Show selected section and highlight button
+    if (planType === 'diet') {
+        dietSection.style.display = 'block';
+        dietToggle.style.background = '#667eea';
+        dietToggle.style.color = 'white';
+    } else if (planType === 'workout') {
+        workoutSection.style.display = 'block';
+        workoutToggle.style.background = '#667eea';
+        workoutToggle.style.color = 'white';
+    } else if (planType === 'pain') {
+        painSection.style.display = 'block';
+        painToggle.style.background = '#667eea';
+        painToggle.style.color = 'white';
+    }
+}
