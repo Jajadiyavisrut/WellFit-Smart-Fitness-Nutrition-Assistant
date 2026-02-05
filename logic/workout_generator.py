@@ -24,25 +24,20 @@ def generate_workout_plan(
     exercises: pd.DataFrame
 ) -> Dict:
     """
-    Generate a weekly workout plan based on user parameters.
+    Builds a weekly workout plan tailored to the user's goal, experience level, schedule, and available exercises.
     
-    Args:
-        fitness_goal: "fat_loss", "muscle_gain", or "endurance"
-        experience_level: "beginner" or "intermediate"
-        workout_days_per_week: Number of workout days per week (3-6)
-        workout_time_minutes: Available workout time per session
-        exercises: DataFrame with exercise data
-        
+    Parameters:
+        fitness_goal (str): Target outcome; one of "fat_loss", "muscle_gain", or "endurance".
+        experience_level (str): User experience; "beginner" or "intermediate".
+        workout_days_per_week (int): Number of training days per week (3–6).
+        workout_time_minutes (int): Available time per session in minutes (20–120).
+        exercises (pd.DataFrame): Exercise dataset containing fields like 'difficulty', 'is_beginner_safe', 'category', 'muscle_groups', and optional 'target_sets'/'target_reps'.
+    
     Returns:
-        Dictionary containing:
-            - goal: Fitness goal
-            - level: Experience level
-            - days_per_week: Number of workout days
-            - split_type: Type of workout split used
-            - weekly_plan: List of daily workout sessions
-            
+        dict: Plan metadata and weekly schedule with keys 'goal', 'level', 'days_per_week', 'split_type', and 'weekly_plan' (list of per-day workout dictionaries).
+    
     Raises:
-        ValueError: If parameters are invalid
+        ValueError: If any input is outside the allowed values or ranges.
     """
     # Validate inputs
     if fitness_goal not in ["fat_loss", "muscle_gain", "endurance"]:
@@ -102,10 +97,14 @@ def generate_workout_plan(
 
 def _get_workout_split(days_per_week: int, fitness_goal: str) -> tuple:
     """
-    Determine the workout split based on days per week and fitness goal.
+    Return a workout split configuration appropriate for the given weekly training frequency and goal.
+    
+    Parameters:
+        days_per_week (int): Number of training days per week; supported values are 3, 4, 5, or 6. Values other than 3–5 use the 6-day split.
+        fitness_goal (str): User's fitness goal (e.g., "fat_loss", "muscle_gain", "endurance"); currently included for future extensibility and does not change split selection.
     
     Returns:
-        Tuple of (split_type, workout_split_list)
+        tuple: A pair (split_type, workout_split) where `split_type` is a human-readable description of the split, and `workout_split` is a list of day descriptors. Each day descriptor is a dict with keys `name` (day label) and `focus` (list of focus areas such as 'upper', 'lower', 'core', 'push', 'pull', 'legs', or specific muscle groups).
     """
     if days_per_week == 3:
         split_type = "Full Body (3x/week)"
@@ -154,10 +153,22 @@ def _generate_daily_workout(
     available_exercises: pd.DataFrame
 ) -> Dict:
     """
-    Generate a single day's workout.
+    Generate a day's workout plan by selecting, sizing, and formatting exercises that match the day's focus areas.
+    
+    Filters the provided exercise pool to match the focus areas (falls back to strength exercises if none match), determines the target number of exercises from session duration, prioritizes compound and strength movements when selecting exercises, assigns sets/reps/rest/instructions for each selected exercise, and optionally adds a core exercise if the day's focuses do not include core.
+    
+    Parameters:
+        day_name (str): Human-readable name for the day (e.g., "Day 1 - Upper").
+        focus_areas (List[str]): List of target focus areas or muscle groups for the day (case-insensitive).
+        fitness_goal (str): Goal driving set/rep selection (e.g., "muscle_gain", "fat_loss", "endurance").
+        experience_level (str): User experience level affecting workload (e.g., "beginner", "intermediate").
+        workout_time_minutes (int): Planned session duration used to determine number of exercises.
+        available_exercises (pd.DataFrame): DataFrame of exercise records to choose from; expected columns include at least 'name', 'category', 'muscle_groups', 'body_part', 'equipment', 'rest_time_seconds', and 'instructions'.
     
     Returns:
-        Dictionary with day_name and exercises list
+        Dict: A dictionary with keys:
+            - 'day_name' (str): The provided day_name.
+            - 'exercises' (List[Dict]): Selected exercises, each including 'name', 'category', 'muscle_groups', 'equipment', 'sets', 'reps', 'rest_seconds', and 'instructions'.
     """
     # Filter exercises by focus areas
     focused_exercises = available_exercises[
@@ -246,10 +257,25 @@ def _generate_daily_workout(
 
 def _get_sets_and_reps(fitness_goal: str, experience_level: str, exercise: pd.Series) -> tuple:
     """
-    Determine sets and reps based on fitness goal and experience level.
+    Compute appropriate sets and repetitions for a given exercise based on the user's fitness goal, experience level, and exercise attributes.
+    
+    Parameters:
+        fitness_goal (str): One of "muscle_gain", "fat_loss", or "endurance" determining the training emphasis.
+        experience_level (str): One of "beginner" or "intermediate" indicating trainee experience.
+        exercise (pd.Series): Exercise metadata row; may include 'category' (e.g., "strength", "cardio", "core")
+            and optional 'target_sets' and 'target_reps' values that serve as a base if present.
     
     Returns:
-        Tuple of (sets, reps)
+        tuple: (sets, reps)
+            sets (int): Number of sets to perform.
+            reps (str): Repetition scheme or duration (e.g., "8-12" or "10-15 min").
+            Behavior specifics:
+              - Muscle gain: typically 3 sets (beginner) or 4 sets (intermediate) with "8-12" reps.
+              - Fat loss: typically 3 sets with "12-15" reps.
+              - Endurance: typically 2 sets (beginner) or 3 sets (intermediate) with "15-20" reps.
+              - If exercise category is "cardio", sets are 1 and reps are a time range like "10-15 min".
+              - If exercise category is "core", sets are 3 and reps are "15-20".
+              - If 'target_sets' and 'target_reps' are provided on the exercise, they are used as base values before adjustments.
     """
     # Use exercise's target if available
     if pd.notna(exercise.get('target_sets')) and pd.notna(exercise.get('target_reps')):
@@ -295,10 +321,13 @@ def _get_sets_and_reps(fitness_goal: str, experience_level: str, exercise: pd.Se
 
 def print_workout_plan(plan: Dict) -> None:
     """
-    Print a formatted workout plan.
+    Prints a human-readable weekly workout plan to standard output.
     
-    Args:
-        plan: Workout plan dictionary from generate_workout_plan()
+    Parameters:
+        plan (Dict): Workout plan dictionary produced by `generate_workout_plan`. Expected keys include
+            `goal`, `level`, `days_per_week`, `split_type`, and `weekly_plan` (a list of day entries where each
+            day contains `day_name` and `exercises` with fields such as `name`, `muscle_groups`,
+            `equipment`, `sets`, `reps`, and `rest_seconds`).
     """
     print("\n" + "=" * 80)
     print("WEEKLY WORKOUT PLAN")
