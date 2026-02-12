@@ -84,7 +84,8 @@ async function saveProfile(event) {
         workout_days_per_week: parseInt(document.getElementById('workout_days').value),
         workout_time_minutes: parseInt(document.getElementById('workout_time').value),
         diet_type: document.getElementById('diet_type').value,
-        monthly_budget: parseFloat(document.getElementById('monthly_budget').value)
+        monthly_budget: parseFloat(document.getElementById('monthly_budget').value),
+        workout_split_preference: document.getElementById('split_preference').value
     };
 
     try {
@@ -523,5 +524,55 @@ function showPlan(planType) {
         painSection.style.display = 'block';
         painToggle.style.background = '#667eea';
         painToggle.style.color = 'white';
+    }
+}
+
+// Load profile data into form (new function)
+async function loadProfileData() {
+    console.log("Loading profile data...");
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+        return; // Not logged in, do nothing (user might be registering)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/api/profile/${userId}`, {
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const profile = data.profile;
+
+            // Populate form fields
+            const fields = [
+                'age', 'gender', 'height_cm', 'weight_kg', 'fitness_goal',
+                'experience_level', 'workout_days', 'workout_time',
+                'diet_type', 'monthly_budget', 'split_preference'
+            ];
+
+            // Map specific fields if names differ from HTML IDs
+            // HTML IDs: workout_days, workout_time, split_preference
+            // API Keys: workout_days_per_week, workout_time_minutes, workout_split_preference
+            const map = {
+                'workout_days': 'workout_days_per_week',
+                'workout_time': 'workout_time_minutes',
+                'split_preference': 'workout_split_preference'
+            };
+
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const key = map[id] || id;
+                    if (profile[key] !== undefined) {
+                        el.value = profile[key];
+                    }
+                }
+            });
+
+            console.log("Profile loaded successfully");
+        }
+    } catch (error) {
+        console.error('Error loading profile:', error);
     }
 }
