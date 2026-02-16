@@ -32,6 +32,7 @@ def generate_workout_plan(
         workout_days_per_week: Number of workout days per week (3-6)
         workout_time_minutes: Available workout time per session
         exercises: DataFrame with exercise data
+        split_preference: \"default\" or \"one_muscle_per_day\"
         
     Returns:
         Dictionary containing:
@@ -70,7 +71,7 @@ def generate_workout_plan(
         ].copy()
     
     # Determine workout split based on days per week
-    split_type, workout_split = _get_workout_split(workout_days_per_week, fitness_goal)
+    split_type, workout_split = _get_workout_split(workout_days_per_week, fitness_goal, split_preference)
     
     # Generate daily workouts
     weekly_plan = []
@@ -100,14 +101,56 @@ def generate_workout_plan(
     }
 
 
-def _get_workout_split(days_per_week: int, fitness_goal: str) -> tuple:
+def _get_workout_split(days_per_week: int, fitness_goal: str, split_preference: str = 'default') -> tuple:
     """
-    Determine the workout split based on days per week and fitness goal.
+    Determine the workout split based on days per week, fitness goal, and preference.
+    
+    Args:
+        days_per_week: Number of workout days per week
+        fitness_goal: User's fitness goal
+        split_preference: 'default' or 'one_muscle_per_day'
     
     Returns:
         Tuple of (split_type, workout_split_list)
     """
-    if days_per_week == 3:
+    # One Muscle Per Day Split
+    if split_preference == 'one_muscle_per_day':
+        if days_per_week == 3:
+            split_type = "One Muscle Per Day (3x/week)"
+            workout_split = [
+                {'name': 'Day 1 - Chest', 'focus': ['chest']},
+                {'name': 'Day 2 - Back', 'focus': ['back']},
+                {'name': 'Day 3 - Legs', 'focus': ['legs']}
+            ]
+        elif days_per_week == 4:
+            split_type = "One Muscle Per Day (4x/week)"
+            workout_split = [
+                {'name': 'Day 1 - Chest', 'focus': ['chest']},
+                {'name': 'Day 2 - Back', 'focus': ['back']},
+                {'name': 'Day 3 - Legs', 'focus': ['legs']},
+                {'name': 'Day 4 - Shoulders', 'focus': ['shoulders']}
+            ]
+        elif days_per_week == 5:
+            split_type = "One Muscle Per Day (5x/week)"
+            workout_split = [
+                {'name': 'Day 1 - Chest', 'focus': ['chest']},
+                {'name': 'Day 2 - Back', 'focus': ['back']},
+                {'name': 'Day 3 - Legs', 'focus': ['legs']},
+                {'name': 'Day 4 - Shoulders', 'focus': ['shoulders']},
+                {'name': 'Day 5 - Arms', 'focus': ['biceps', 'triceps']}
+            ]
+        else:  # 6 days
+            split_type = "One Muscle Per Day (6x/week)"
+            workout_split = [
+                {'name': 'Day 1 - Chest', 'focus': ['chest']},
+                {'name': 'Day 2 - Back', 'focus': ['back']},
+                {'name': 'Day 3 - Legs', 'focus': ['legs']},
+                {'name': 'Day 4 - Shoulders', 'focus': ['shoulders']},
+                {'name': 'Day 5 - Arms', 'focus': ['biceps', 'triceps']},
+                {'name': 'Day 6 - Core & Cardio', 'focus': ['core']}
+            ]
+    # Default Compound Splits
+    elif days_per_week == 3:
         split_type = "Full Body (3x/week)"
         workout_split = [
             {'name': 'Day 1 - Full Body', 'focus': ['upper', 'lower', 'core']},
@@ -173,10 +216,12 @@ def _generate_daily_workout(
     
     # Determine number of exercises based on time
     if workout_time_minutes <= 30:
-        num_exercises = 4
+        num_exercises = 3
     elif workout_time_minutes <= 45:
-        num_exercises = 5
+        num_exercises = 4
     elif workout_time_minutes <= 60:
+        num_exercises = 5
+    elif workout_time_minutes <= 75:
         num_exercises = 6
     else:
         num_exercises = 7
