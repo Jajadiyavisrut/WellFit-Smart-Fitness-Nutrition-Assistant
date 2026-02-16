@@ -81,14 +81,16 @@ def generate_diet_plan(
     # Create a composite score
     if daily_budget < 100:
         # Low budget: Survival Mode. Prioritize Calories per Rupee above all else.
-        # Remove hard filters to ensure we have options.
-        
         # Super-heavy weight on cost efficiency (90%)
         merged_data['score'] = (merged_data['protein_ratio'] * 10) + (merged_data['cost_efficiency'] * 90)
+    elif daily_budget < 300:
+        # Medium budget (100-300 Rs): Balance protein quality and cost efficiency
+        # Equal weight to both factors
+        merged_data['score'] = (merged_data['protein_ratio'] * 50) + (merged_data['cost_efficiency'] * 50)
     else:
-        # High budget: Prioritize protein ONLY.
-        # We rely on the budget check loop to ensure affordability.
-        merged_data['score'] = merged_data['protein_ratio']
+        # High budget (300+ Rs): Prioritize protein quality
+        # Heavy weight on protein, light weight on cost
+        merged_data['score'] = (merged_data['protein_ratio'] * 80) + (merged_data['cost_efficiency'] * 20)
     
     # Sort by score (descending)
     merged_data = merged_data.sort_values('score', ascending=False)
