@@ -21,7 +21,8 @@ def generate_workout_plan(
     experience_level: str,
     workout_days_per_week: int,
     workout_time_minutes: int,
-    exercises: pd.DataFrame
+    exercises: pd.DataFrame,
+    split_preference: str = 'default'
 ) -> Dict:
     """
     Generate a weekly workout plan based on user parameters.
