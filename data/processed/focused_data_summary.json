@@ -1,0 +1,28 @@
+{
+  "focus_areas": [
+    "exercise",
+    "nutrition",
+    "pain_prevention",
+    "workout_safety"
+  ],
+  "excluded_areas": [
+    "diabetes",
+    "heart_disease",
+    "cancer",
+    "depression",
+    "general_medical"
+  ],
+  "total_records": 890,
+  "exercise_records": 174,
+  "nutrition_records": 135,
+  "pricing_records": 540,
+  "pain_records": 32,
+  "safety_records": 5,
+  "recovery_records": 4,
+  "categories": {
+    "exercise_categories": 4,
+    "food_categories": 6,
+    "regions_covered": 20,
+    "body_parts_covered": 4
+  }
+}

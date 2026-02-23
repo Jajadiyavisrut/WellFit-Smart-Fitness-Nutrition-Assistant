@@ -1,0 +1,24 @@
+body_part,exercise_name,risk_level
+knee,squats,high
+knee,lunges,high
+knee,jumping jacks,high
+knee,burpees,high
+knee,running,medium
+knee,step ups,medium
+lower_back,deadlifts,high
+lower_back,bent over rows,high
+lower_back,good mornings,high
+lower_back,squats,medium
+lower_back,overhead press,medium
+shoulder,overhead press,high
+shoulder,lateral raises,high
+shoulder,bench press,medium
+shoulder,pull ups,medium
+shoulder,push ups,medium
+neck,overhead press,high
+neck,upright rows,high
+neck,shrugs,medium
+wrist,push ups,high
+wrist,planks,high
+wrist,burpees,high
+wrist,mountain climbers,medium
