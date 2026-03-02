@@ -18,6 +18,18 @@ async function register(event) {
     event.preventDefault();
     const email = document.getElementById('email').value;
     const password = document.getElementById('password').value;
+    const confirm = (document.getElementById('confirm_password') || {}).value || '';
+
+    // Basic client-side validation
+    if (password !== confirm) {
+        showMessage('message', 'Passwords do not match', 'error');
+        return;
+    }
+    const strengthRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}/;
+    if (!strengthRegex.test(password)) {
+        showMessage('message', 'Password must be at least 8 characters and include upper, lower and a number', 'error');
+        return;
+    }
 
     try {
         const response = await fetch(`${API_BASE}/api/register`, {
@@ -291,7 +303,7 @@ async function adaptWorkout(event) {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/api/adaptive-workout`, {
+        const response = await fetch(`${API_BASE}/api/adapt-workout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
