@@ -6,6 +6,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - WellFit</title>
     <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        #otpSection { display: none; }
+        .otp-input { letter-spacing: 0.4em; font-size: 1.5rem; text-align: center; }
+        .step-indicator { display: flex; gap: 8px; margin-bottom: 24px; }
+        .step { flex: 1; height: 4px; border-radius: 2px; background: #e2e8f0; transition: background 0.3s; }
+        .step.active { background: #667eea; }
+    </style>
 </head>
 
 <body>
@@ -13,26 +20,63 @@
         <h1>Join WellFit</h1>
         <p>Create your account to start your fitness journey</p>
 
+        <div class="step-indicator">
+            <div class="step active" id="step1bar"></div>
+            <div class="step" id="step2bar"></div>
+        </div>
+
         <div id="message" class="message"></div>
 
-        <form onsubmit="register(event)">
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input type="email" id="email" required placeholder="your@email.com">
-            </div>
+        <!-- STEP 1 – Registration details -->
+        <div id="registerSection">
+            <form onsubmit="sendOtp(event)">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required placeholder="your@email.com">
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="show-pw-wrapper">
+                        <input type="password" id="password" required minlength="8"
+                               placeholder="Min 8 chars, upper + lower + number">
+                        <button type="button" class="toggle-pw" onclick="togglePw('password', this)" title="Show/hide password">
+                            <svg id="eye-password" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password</label>
+                    <div class="show-pw-wrapper">
+                        <input type="password" id="confirm_password" required minlength="8"
+                               placeholder="Repeat your password">
+                        <button type="button" class="toggle-pw" onclick="togglePw('confirm_password', this)" title="Show/hide password">
+                            <svg id="eye-confirm" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                        </button>
+                    </div>
+                </div>
+                <button type="submit" id="sendOtpBtn">Send OTP</button>
+            </form>
+        </div>
 
-            <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" required minlength="8" placeholder="At least 8 characters">
-            </div>
-
-            <div class="form-group">
-                <label for="confirm_password">Confirm Password</label>
-                <input type="password" id="confirm_password" required minlength="8" placeholder="Repeat your password">
-            </div>
-
-            <button type="submit">Register</button>
-        </form>
+        <!-- STEP 2 – OTP Verification -->
+        <div id="otpSection">
+            <p style="margin-bottom:12px;">
+                We sent a 6-digit code to <strong id="emailDisplay"></strong>.
+                It expires in <strong>5 minutes</strong>.
+            </p>
+            <form onsubmit="verifyOtp(event)">
+                <div class="form-group">
+                    <label for="otpInput">Enter OTP</label>
+                    <input type="text" id="otpInput" class="otp-input"
+                           maxlength="6" pattern="[0-9]{6}" inputmode="numeric"
+                           required placeholder="123456" autocomplete="one-time-code">
+                </div>
+                <button type="submit" id="verifyBtn">Verify OTP</button>
+            </form>
+            <p style="margin-top:12px; font-size:0.9rem;">
+                Wrong email? <a href="#" onclick="goBack(); return false;">Go back</a>
+            </p>
+        </div>
 
         <div class="link">
             Already have an account? <a href="/login.html">Login here</a>

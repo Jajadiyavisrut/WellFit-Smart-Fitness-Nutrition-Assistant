@@ -256,6 +256,46 @@ button:active {
     }
 }
 
+/* ── Password toggle eye icon (right-aligned inside input) ──────────────── */
+.show-pw-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.show-pw-wrapper input {
+    padding-right: 44px;
+    width: 100%;
+}
+
+.toggle-pw {
+    /* override global button styles */
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: auto !important;
+    padding: 0 !important;
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    cursor: pointer;
+    color: #999;
+    line-height: 1;
+}
+
+.toggle-pw:hover {
+    transform: translateY(-50%) !important;
+    box-shadow: none !important;
+    color: #667eea;
+}
+
+.toggle-pw svg {
+    width: 20px;
+    height: 20px;
+    display: block;
+}
+
 /* Typing animation for chatbot */
 @keyframes typing {
 
@@ -269,5 +309,225 @@ button:active {
     30% {
         transform: translateY(-10px);
         opacity: 1;
+    }
+}
+
+/* ── Workout Builder – GIF Card Layout ──────────────────────────────────── */
+.wb-split-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #764ba2;
+    margin-bottom: 10px;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+/* Day selector tabs */
+.wb-day-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.wb-day-tab {
+    width: auto !important;
+    padding: 8px 16px !important;
+    background: #f0f0f8 !important;
+    color: #555 !important;
+    border: 2px solid #e0e0ef !important;
+    border-radius: 20px !important;
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: none !important;
+}
+
+.wb-day-tab:hover {
+    background: #e8e8f8 !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15) !important;
+}
+
+.wb-day-tab.active {
+    background: linear-gradient(135deg, #667eea, #764ba2) !important;
+    color: white !important;
+    border-color: transparent !important;
+    box-shadow: 0 3px 12px rgba(102, 126, 234, 0.35) !important;
+}
+
+/* Featured exercise card (first exercise of the day – shown with GIF) */
+.wb-ex-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e8e8f0;
+    margin-bottom: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    transition: box-shadow 0.2s;
+}
+
+.wb-ex-card:hover {
+    box-shadow: 0 4px 16px rgba(102, 126, 234, 0.18);
+}
+
+.wb-ex-card-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    font-weight: 700;
+    font-size: 15px;
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 0.15s;
+}
+
+.wb-ex-card-header:hover {
+    opacity: 0.9;
+}
+
+.wb-ex-card-name {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.wb-ex-card-meta {
+    font-size: 13px;
+    font-weight: 500;
+    opacity: 0.85;
+    margin-right: 10px;
+}
+
+.wb-ex-chevron {
+    font-size: 11px;
+    transition: transform 0.2s;
+}
+
+.wb-ex-card-body {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+}
+
+/* Left side: details column */
+.wb-ex-details {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 14px 16px;
+}
+
+.wb-ex-stat {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.wb-ex-stat-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #999;
+    text-transform: uppercase;
+    width: 36px;
+    flex-shrink: 0;
+}
+
+.wb-ex-stat-value {
+    font-size: 16px;
+    font-weight: 700;
+    color: #333;
+}
+
+.wb-ex-muscle {
+    font-size: 12px;
+    color: #764ba2;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+.wb-ex-equip {
+    font-size: 12px;
+    color: #888;
+}
+
+/* Right side: GIF image area */
+.wb-ex-gif-wrap {
+    width: 160px;
+    min-height: 140px;
+    flex-shrink: 0;
+    background: #f4f4fb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-left: 1px solid #efefef;
+    overflow: hidden;
+}
+
+.wb-ex-gif {
+    width: 160px;
+    height: 160px;
+    object-fit: cover;
+    display: block;
+}
+
+.wb-ex-gif-placeholder {
+    font-size: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 140px;
+    color: #c0c0d0;
+}
+
+/* Compact exercise row (2nd exercise onwards) */
+.wb-ex-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: white;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-left: 4px solid #764ba2;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.wb-ex-row-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+}
+
+.wb-ex-row-meta {
+    font-size: 12px;
+    color: #888;
+    text-align: right;
+}
+
+/* Rest day message */
+.wb-rest-day {
+    text-align: center;
+    padding: 30px;
+    color: #999;
+    font-size: 15px;
+    font-style: italic;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .wb-ex-gif-wrap {
+        width: 120px;
+        min-height: 110px;
+    }
+
+    .wb-ex-gif {
+        width: 120px;
+        height: 120px;
     }
 }
