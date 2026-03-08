@@ -46,6 +46,11 @@ def generate_workout_plan(
     Raises:
         ValueError: If parameters are invalid
     """
+    # fitness_goal =input("fat_loss, muscle_gain, endurance =  ")
+    # experience_level=input("beginner, intermediate =  ")
+    # workout_days_per_week =int(input(" 3 or workout_days_per_week > 6 = "))
+    # workout_time_minutes=int(input(" 20 or workout_time_minutes > 120 =  "))
+
     # Validate inputs
     if fitness_goal not in ["fat_loss", "muscle_gain", "endurance"]:
         raise ValueError("fitness_goal must be 'fat_loss', 'muscle_gain', or 'endurance'")
@@ -58,7 +63,7 @@ def generate_workout_plan(
     
     if workout_time_minutes < 20 or workout_time_minutes > 120:
         raise ValueError("workout_time_minutes must be between 20 and 120")
-    
+    #####################################################################################################################################################################
     # Filter exercises by experience level
     if experience_level == "beginner":
         available_exercises = exercises[
@@ -114,6 +119,7 @@ def _get_workout_split(days_per_week: int, fitness_goal: str, split_preference: 
     Returns:
         Tuple of (split_type, workout_split_list)
     """
+    ######################################################################################################################################################
     # One Muscle Per Day Split
     if split_preference == 'one_muscle_per_day':
         if days_per_week == 3:
@@ -203,6 +209,7 @@ def _generate_daily_workout(
     Returns:
         Dictionary with day_name and exercises list
     """
+    ###################################################################################################################################################################
     # Filter exercises by focus areas
     focused_exercises = available_exercises[
         available_exercises['muscle_groups'].str.contains('|'.join(focus_areas), case=False, na=False) |
@@ -214,7 +221,7 @@ def _generate_daily_workout(
         focused_exercises = available_exercises[
             available_exercises['category'] == 'strength'
         ].copy()
-    
+    #################################################################################################################################################
     # Determine number of exercises based on time
     if workout_time_minutes <= 30:
         num_exercises = 3
@@ -229,7 +236,7 @@ def _generate_daily_workout(
     
     # Select exercises
     selected_exercises = []
-    
+    ######################################################################################################################################################################
     # Prioritize compound movements for first exercises
     compound_exercises = focused_exercises[
         focused_exercises['name'].str.contains('squat|deadlift|press|pull|row|lunge', case=False, na=False)
