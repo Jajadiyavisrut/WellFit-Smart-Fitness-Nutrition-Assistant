@@ -2,6 +2,7 @@
 Database connection utilities for WellFit
 Provides reusable PostgreSQL connection helpers using psycopg2
 """
+import re
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from typing import Optional
@@ -72,13 +73,14 @@ def execute_insert(query: str, params: tuple = ()) -> int:
     Returns:
         int: Last inserted row ID
     """
-    query = query.replace('?', '%s')
-    
-    # In PostgreSQL, we need RETURNING id to get the inserted row ID.
-    # If the query doesn't already have it, append it.
-    if "RETURNING id" not in query.upper():
+    query = query.replace('?', '%s').strip().rstrip(';')
+
+    # PostgreSQL needs RETURNING id. Do not duplicate (case-insensitive).
+    # Note: "RETURNING id" not in query.upper() was wrong — "RETURNING ID" in SQL
+    # would not match lowercase "id", causing a second RETURNING and syntax errors.
+    if not re.search(r'\bRETURNING\s+id\b', query, re.IGNORECASE):
         query = f"{query} RETURNING id"
-        
+
     with get_db() as conn:
         with conn.cursor() as cursor:
             cursor.execute(query, params)

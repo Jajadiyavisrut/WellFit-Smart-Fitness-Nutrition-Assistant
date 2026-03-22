@@ -296,21 +296,7 @@ button:active {
     display: block;
 }
 
-/* Typing animation for chatbot */
-@keyframes typing {
 
-    0%,
-    60%,
-    100% {
-        transform: translateY(0);
-        opacity: 0.5;
-    }
-
-    30% {
-        transform: translateY(-10px);
-        opacity: 1;
-    }
-}
 
 /* ── Workout Builder – GIF Card Layout ──────────────────────────────────── */
 .wb-split-label {

@@ -54,3 +54,5 @@ test_workout.py
 # Extraneous Folders
 data_collection/
 WellFit-Smart-Fitness-Nutrition-Assistant/
+migrate_add_full_name.py
+not needed files list.txt
