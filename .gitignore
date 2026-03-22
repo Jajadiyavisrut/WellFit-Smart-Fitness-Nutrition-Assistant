@@ -1,61 +1,44 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-*.pyc
-
-# Exclude all Python files
-*.py
-
-# Exclude backend folders
-utils/
-data/
-api/
-database/
-
-# Exclude database files
-*.db
-*.sqlite
-*.sqlite3
-
-# IDE
-.vscode/
-.idea/
-.kiro/
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Files and Directories NOT needed for GitHub or Deployment
-
-# 1. Sensitive Data and Credentials (CRITICAL TO EXCLUDE)
+# Python Environments
+venv/
+env/
 .env
-
-# 2. Local Database Files (Server should use its own DB)
-database/wellfit.db
-*.db
-*.sqlite
-*.sqlite3
-
-# 3. Temporary and Compiled Auto-Generated Files
 __pycache__/
 *.pyc
 *.pyo
 *$py.class
 *.so
 
-# 4. Local IDE/Editor Settings
+# Operating System Files
+.DS_Store
+Thumbs.db
+
+# IDE Files
 .vscode/
 .idea/
 
-# 5. Local Testing & Debugging Scripts (Not used by the running app)
+# Local Database Files
+*.db
+*.sqlite
+*.sqlite3
+database/wellfit.db
+
+# Random Output & Testing
+files_to_exclude.txt
+gantt_chart.ipynb
+wellfit_gantt_chart.png
+output.png
+
+# Experimental/Migration Scripts
 check_plans.py
+verify_schema.py
+migrate_add_split_preference.py
+add_split_preference_column.sql
 debug_workout_frequency.py
 smtp_test.py
 smtp_test_run.py
+init_db.py
+
+# Test Files
 test_adaptive_workout.py
 test_api.py
 test_auth.py
@@ -67,16 +50,7 @@ test_profile_api.py
 test_send_otp.py
 test_validation.py
 test_workout.py
-verify_schema.py
-init_db.py  # Keep only if you need to initialize DB on first deploy, otherwise exclude.
 
-# 6. Random Outputs and Design/Planning Files
-gantt_chart.ipynb
-output.png
-wellfit_gantt_chart.png
-add_split_preference_column.sql
-migrate_add_split_preference.py
-
-# 7. Duplicate Repository / Extraneous Folders
-WellFit-Smart-Fitness-Nutrition-Assistant/ (The redundant cloned folder inside your project)
-data_collection/ (Unless needed to scrape data regularly on the server)
+# Extraneous Folders
+data_collection/
+WellFit-Smart-Fitness-Nutrition-Assistant/

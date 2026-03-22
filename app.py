@@ -60,6 +60,18 @@ except ImportError:
 
 # Initialize Flask app
 app = Flask(__name__)
+app.config.from_object('config.Config')
+
+# Initialize Supabase client
+from supabase import create_client, Client
+SUPABASE_URL = app.config.get('SUPABASE_URL')
+SUPABASE_KEY = app.config.get('SUPABASE_KEY')
+
+if SUPABASE_URL and SUPABASE_KEY:
+    supabase: Client = create_client(SUPABASE_URL, SUPABASE_KEY)
+else:
+    print("WARNING: SUPABASE_URL or SUPABASE_KEY missing in config.")
+    supabase = None
 
 # Configure secret key for sessions
 # In production, use environment variable
@@ -307,18 +319,27 @@ def register():
         if existing_user:
             return jsonify({'error': 'Email already registered'}), 409
         
-        # Hash password
-        password_hash = generate_password_hash(password)
+        # Supabase Auth Sign Up
+        try:
+            res = supabase.auth.sign_up({"email": email, "password": password})
+            if not res.user:
+                return jsonify({'error': 'Registration failed with Supabase.'}), 500
+        except Exception as e:
+            # Handle Supabase errors cleanly without crashing
+            error_msg = str(e)
+            if "already registered" in error_msg.lower():
+                return jsonify({'error': 'Email already registered'}), 409
+            return jsonify({'error': f'Supabase Registration Error: {error_msg}'}), 400
         
-        # Insert new user
+        # Insert new user into our mapping table
         user_id = execute_insert(
             "INSERT INTO users (email, password_hash) VALUES (?, ?)",
-            (email, password_hash)
+            (email, 'SUPABASE_AUTH')
         )
         
         return jsonify({
             'success': True,
-            'message': 'User registered successfully',
+            'message': 'User registered successfully with Supabase',
             'user_id': user_id
         }), 201
         
@@ -351,7 +372,7 @@ def login():
         email = data['email'].strip().lower()
         password = data['password']
         
-        # Fetch user
+        # Fetch user from local mapping
         user = execute_query(
             "SELECT id, email, password_hash FROM users WHERE email = ?",
             (email,)
@@ -362,9 +383,18 @@ def login():
         
         user_data = dict(user[0])
         
-        # Verify password
-        if not check_password_hash(user_data['password_hash'], password):
-            return jsonify({'error': 'Invalid email or password'}), 401
+        # If it's a legacy user (has a hash), verify locally, otherwise use Supabase
+        if user_data['password_hash'] != 'SUPABASE_AUTH':
+            if not check_password_hash(user_data['password_hash'], password):
+                return jsonify({'error': 'Invalid email or password'}), 401
+        else:
+            # Supabase Auth Sign In
+            try:
+                res = supabase.auth.sign_in_with_password({"email": email, "password": password})
+                if not res.session:
+                    return jsonify({'error': 'Invalid email or password'}), 401
+            except Exception as e:
+                return jsonify({'error': 'Invalid email or password'}), 401
         
         # Create session
         session['user_id'] = user_data['id']
@@ -454,40 +484,38 @@ def create_or_update_profile():
         
         if existing_profile:
             # UPDATE existing profile
-            with get_db() as conn:
-                cursor = conn.cursor()
-                cursor.execute("""
-                    UPDATE user_profiles SET
-                        age = ?,
-                        gender = ?,
-                        height_cm = ?,
-                        weight_kg = ?,
-                        fitness_goal = ?,
-                        experience_level = ?,
-                        workout_days_per_week = ?,
-                        workout_time_minutes = ?,
-                        diet_type = ?,
-                        monthly_budget = ?,
-                        workout_split_preference = ?,
-                        state = ?,
-                        updated_at = datetime('now')
-                    WHERE user_id = ?
-                """, (
-                    data['age'],
-                    data['gender'],
-                    data['height_cm'],
-                    data['weight_kg'],
-                    data['fitness_goal'],
-                    data['experience_level'],
-                    data['workout_days_per_week'],
-                    data['workout_time_minutes'],
-                    data['diet_type'],
-                    data['monthly_budget'],
-                    data.get('workout_split_preference', 'default'),
-                    data.get('state'),
-                    data['user_id']
-                ))
-            
+            execute_query("""
+                UPDATE user_profiles SET
+                    age = ?,
+                    gender = ?,
+                    height_cm = ?,
+                    weight_kg = ?,
+                    fitness_goal = ?,
+                    experience_level = ?,
+                    workout_days_per_week = ?,
+                    workout_time_minutes = ?,
+                    diet_type = ?,
+                    monthly_budget = ?,
+                    workout_split_preference = ?,
+                    state = ?,
+                    updated_at = CURRENT_TIMESTAMP
+                WHERE user_id = ?
+                RETURNING id
+            """, (
+                data['age'],
+                data['gender'],
+                data['height_cm'],
+                data['weight_kg'],
+                data['fitness_goal'],
+                data['experience_level'],
+                data['workout_days_per_week'],
+                data['workout_time_minutes'],
+                data['diet_type'],
+                data['monthly_budget'],
+                data.get('workout_split_preference', 'default'),
+                data.get('state'),
+                data['user_id']
+            ))
             message = "Profile updated successfully"
             profile_id = existing_profile[0]['id']
         else:
@@ -1275,7 +1303,7 @@ if __name__ == '__main__':
     print("  POST /api/workout         - Generate workout plan")
     print("  POST /api/pain            - Modify workout for pain")
     print("\n" + "=" * 80)
-    print("Starting server on http://localhost:5000")
+    print("Starting server on http://localhost:5001")
     print("=" * 80 + "\n")
     
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)

@@ -1,46 +1,26 @@
 """
 Database connection utilities for WellFit
-Provides reusable SQLite connection helpers
+Provides reusable PostgreSQL connection helpers using psycopg2
 """
-import sqlite3
-from pathlib import Path
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from typing import Optional
 from contextlib import contextmanager
+import os
 
 
-def get_db_path() -> Path:
-    """
-    Get the absolute path to the database file.
-    
-    Returns:
-        Path: Absolute path to wellfit.db
-    """
-    # Get the project root (parent of database directory)
-    project_root = Path(__file__).parent.parent
-    db_path = project_root / "database" / "wellfit.db"
-    
-    if not db_path.exists():
-        raise FileNotFoundError(f"Database file not found: {db_path}")
-    
-    return db_path
-
-
-def get_db_connection() -> sqlite3.Connection:
+def get_db_connection():
     """
     Create a new database connection.
     
     Returns:
-        sqlite3.Connection: Database connection with row factory enabled
+        psycopg2 connection: Database connection
     """
-    db_path = get_db_path()
-    conn = sqlite3.connect(str(db_path))
+    database_url = os.environ.get('DATABASE_URL')
+    if not database_url:
+        raise ValueError("DATABASE_URL environment variable is not set.")
     
-    # Enable foreign key constraints
-    conn.execute('PRAGMA foreign_keys = ON')
-    
-    # Enable row factory for dict-like access
-    conn.row_factory = sqlite3.Row
-    
+    conn = psycopg2.connect(database_url)
     return conn
 
 
@@ -49,12 +29,6 @@ def get_db():
     """
     Context manager for database connections.
     Automatically handles connection closing.
-    
-    Usage:
-        with get_db() as conn:
-            cursor = conn.cursor()
-            cursor.execute("SELECT * FROM users")
-            results = cursor.fetchall()
     """
     conn = get_db_connection()
     try:
@@ -76,12 +50,15 @@ def execute_query(query: str, params: tuple = ()) -> list:
         params: Query parameters (optional)
         
     Returns:
-        list: List of Row objects
+        list: List of dict-like objects
     """
+    # Convert SQLite ? placeholders to PostgreSQL %s
+    query = query.replace('?', '%s')
+    
     with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute(query, params)
-        return cursor.fetchall()
+        with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute(query, params)
+            return cursor.fetchall()
 
 
 def execute_insert(query: str, params: tuple = ()) -> int:
@@ -95,10 +72,18 @@ def execute_insert(query: str, params: tuple = ()) -> int:
     Returns:
         int: Last inserted row ID
     """
+    query = query.replace('?', '%s')
+    
+    # In PostgreSQL, we need RETURNING id to get the inserted row ID.
+    # If the query doesn't already have it, append it.
+    if "RETURNING id" not in query.upper():
+        query = f"{query} RETURNING id"
+        
     with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute(query, params)
-        return cursor.lastrowid
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+            result = cursor.fetchone()
+            return result[0] if result else None
 
 
 def execute_update(query: str, params: tuple = ()) -> int:
@@ -112,7 +97,10 @@ def execute_update(query: str, params: tuple = ()) -> int:
     Returns:
         int: Number of affected rows
     """
+    query = query.replace('?', '%s')
+    
     with get_db() as conn:
-        cursor = conn.cursor()
-        cursor.execute(query, params)
-        return cursor.rowcount
+        with conn.cursor() as cursor:
+            cursor.execute(query, params)
+            return cursor.rowcount
+
