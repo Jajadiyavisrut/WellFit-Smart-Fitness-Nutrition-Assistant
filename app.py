@@ -39,7 +39,7 @@ from pain_handler import modify_workout_for_pain
 
 # Add database directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'database'))
-from db import get_db, execute_query, execute_insert
+from db import execute_query, execute_insert, execute_update
 
 # Add utils directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'utils'))
@@ -453,7 +453,8 @@ def create_or_update_profile():
             "workout_time_minutes": int (20-120),
             "diet_type": "veg" or "non-veg",
             "monthly_budget": float,
-            "state": str (optional)
+            "state": str (optional),
+            "full_name": str (optional, display name)
         }
     
     Returns:
@@ -466,7 +467,13 @@ def create_or_update_profile():
         is_valid, error = validate_profile_data(data)
         if not is_valid:
             return jsonify({'error': error}), 400
-        
+
+        raw_name = data.get('full_name')
+        if isinstance(raw_name, str):
+            full_name = raw_name.strip() or None
+        else:
+            full_name = None
+
         # Check if user exists
         user_exists = execute_query(
             "SELECT id FROM users WHERE id = ?",
@@ -498,6 +505,7 @@ def create_or_update_profile():
                     monthly_budget = ?,
                     workout_split_preference = ?,
                     state = ?,
+                    full_name = ?,
                     updated_at = CURRENT_TIMESTAMP
                 WHERE user_id = ?
                 RETURNING id
@@ -514,6 +522,7 @@ def create_or_update_profile():
                 data['monthly_budget'],
                 data.get('workout_split_preference', 'default'),
                 data.get('state'),
+                full_name,
                 data['user_id']
             ))
             message = "Profile updated successfully"
@@ -524,8 +533,8 @@ def create_or_update_profile():
                 INSERT INTO user_profiles (
                     user_id, age, gender, height_cm, weight_kg,
                     fitness_goal, experience_level, workout_days_per_week,
-                    workout_time_minutes, diet_type, monthly_budget, workout_split_preference, state
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    workout_time_minutes, diet_type, monthly_budget, workout_split_preference, state, full_name
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """, (
                 data['user_id'],
                 data['age'],
@@ -539,7 +548,8 @@ def create_or_update_profile():
                 data['diet_type'],
                 data['monthly_budget'],
                 data.get('workout_split_preference', 'default'),
-                data.get('state')
+                data.get('state'),
+                full_name
             ))
             
             message = "Profile created successfully"
@@ -677,7 +687,7 @@ def generate_plan():
         diet_plan_id = execute_insert("""
             INSERT INTO diet_plans (
                 user_id, plan_date, diet_data, total_cost
-            ) VALUES (?, date('now'), ?, ?)
+            ) VALUES (?, CURRENT_DATE, ?, ?)
         """, (
             user_id,
             json.dumps(diet_plan),
@@ -688,7 +698,7 @@ def generate_plan():
         workout_plan_id = execute_insert("""
             INSERT INTO workout_plans (
                 user_id, plan_date, workout_data
-            ) VALUES (?, date('now'), ?)
+            ) VALUES (?, CURRENT_DATE, ?)
         """, (
             user_id,
             json.dumps(workout_plan)
@@ -832,39 +842,229 @@ def adaptive_workout():
         if not pain_text:
             return jsonify({'error': 'pain_text cannot be empty'}), 400
         
-        # Fetch today's workout plan
+        import json
+
+        # PostgreSQL: plan_date may be text or date — compare as date (not SQLite date('now'))
         workout_plan = execute_query("""
             SELECT id, workout_data
             FROM workout_plans
-            WHERE user_id = ? AND plan_date = date('now')
+            WHERE user_id = ?
+              AND CAST(plan_date AS DATE) = CURRENT_DATE
             ORDER BY created_at DESC
             LIMIT 1
         """, (user_id,))
-        
+
+        def _generic_mobility_suggestions(body_part_label):
+            import random
+            bp = (body_part_label or 'your body').lower()
+            pool = [
+                {
+                    'name': 'Easy walking or marching in place',
+                    'category': 'mobility',
+                    'muscle_groups': bp,
+                    'equipment': 'none',
+                    'sets': 1,
+                    'reps': '5–8 min',
+                    'rest_seconds': 0,
+                    'instructions': 'Low-impact movement increases blood flow and can ease stiffness.'
+                },
+                {
+                    'name': 'Cat–cow or gentle spine mobility',
+                    'category': 'mobility',
+                    'muscle_groups': 'spine, core',
+                    'equipment': 'mat optional',
+                    'sets': 2,
+                    'reps': '8–10 slow reps',
+                    'rest_seconds': 30,
+                    'instructions': 'Move slowly; stop if anything sharpens the pain.'
+                },
+                {
+                    'name': 'Light stretching (affected area)',
+                    'category': 'mobility',
+                    'muscle_groups': bp,
+                    'equipment': 'none',
+                    'sets': 2,
+                    'reps': '20–30 s hold',
+                    'rest_seconds': 20,
+                    'instructions': 'Gentle range of motion only — no forcing or bouncing.'
+                },
+                {
+                    'name': 'Deep breathing focus',
+                    'category': 'recovery',
+                    'muscle_groups': 'core, diaphragm',
+                    'equipment': 'none',
+                    'sets': 1,
+                    'reps': '3–5 min',
+                    'rest_seconds': 0,
+                    'instructions': 'Focus on deep, diaphragmatic breathing to promote parasympathetic nervous system recovery.'
+                },
+                {
+                    'name': 'Childs Pose',
+                    'category': 'mobility',
+                    'muscle_groups': 'back, hips, shoulders',
+                    'equipment': 'mat optional',
+                    'sets': 1,
+                    'reps': '45–60 s hold',
+                    'rest_seconds': 0,
+                    'instructions': 'Sink into the hips and stretch the arms forward to lengthen the spine. Do not force the hips.'
+                },
+                {
+                    'name': 'Bird Dog holds',
+                    'category': 'mobility',
+                    'muscle_groups': 'core, spine',
+                    'equipment': 'mat optional',
+                    'sets': 2,
+                    'reps': '5 reps per side',
+                    'rest_seconds': 30,
+                    'instructions': 'Move with slow control, focusing on stability rather than range of motion.'
+                },
+                {
+                    'name': 'Glute Bridge (bodyweight)',
+                    'category': 'mobility',
+                    'muscle_groups': 'glutes, hips',
+                    'equipment': 'none',
+                    'sets': 2,
+                    'reps': '10 slow reps',
+                    'rest_seconds': 30,
+                    'instructions': 'Squeeze glutes at the top. This is to wake up the muscles, not to exhaust them.'
+                },
+                {
+                    'name': 'Dynamic Arm Circles',
+                    'category': 'mobility',
+                    'muscle_groups': 'shoulders, upper back',
+                    'equipment': 'none',
+                    'sets': 2,
+                    'reps': '15 forward, 15 back',
+                    'rest_seconds': 20,
+                    'instructions': 'Keep the motion smooth and fluid to lubricate the shoulder joints.'
+                }
+            ]
+            return random.sample(pool, 3)
+
+        # No saved plan for today, or we could not load it: still help with mobility (never 404)
         if not workout_plan:
+            modification_result = modify_workout_for_pain(
+                pain_text=pain_text,
+                today_workout_plan=[],
+                pain_keywords=PAIN_KEYWORDS,
+                exercises_df=EXERCISES,
+                exercise_contraindications=EXERCISE_CONTRAINDICATIONS,
+                recovery_exercises=RECOVERY_EXERCISES
+            )
+            mw = modification_result['modified_workout'] or []
+            if not mw and modification_result.get('pain_detected'):
+                if modification_result.get('severity') == 'high' or modification_result.get('medical_attention_needed'):
+                    mw = []
+                else:
+                    mw = _generic_mobility_suggestions(modification_result.get('affected_body_part'))
+            elif not mw:
+                mw = _generic_mobility_suggestions(None)
+
+            pain_report_id = execute_insert("""
+                INSERT INTO pain_reports (
+                    user_id, pain_text, affected_body_part
+                ) VALUES (?, ?, ?)
+            """, (
+                user_id,
+                pain_text,
+                modification_result['affected_body_part']
+            ))
+
+            if not mw and (modification_result.get('severity') == 'high' or modification_result.get('medical_attention_needed')):
+                friendly = (
+                    'There is no workout saved for today, so nothing was changed in your plan. '
+                    f"{modification_result['immediate_action']} "
+                    'If symptoms are severe or worsening, seek professional care.'
+                )
+            else:
+                friendly = (
+                    'There is no workout saved for today, so we have not changed a plan. '
+                    'Light mobility work can still help you move more comfortably. '
+                    'If pain is sharp or getting worse, ease off and consider speaking with a professional.'
+                )
+
             return jsonify({
-                'error': 'No workout plan found for today',
-                'message': 'Please generate a workout plan first using /api/generate-plan'
-            }), 404
-        
-        import json
+                'success': True,
+                'mobility_only': True,
+                'no_workout_today': True,
+                'message': friendly,
+                'pain_report_id': pain_report_id,
+                'pain_detected': modification_result['pain_detected'],
+                'affected_body_part': modification_result['affected_body_part'],
+                'severity': modification_result['severity'],
+                'medical_attention_needed': modification_result['medical_attention_needed'],
+                'immediate_action': modification_result['immediate_action'],
+                'modified_workout': mw,
+                'removed_exercises': [],
+                'added_exercises': modification_result.get('added_exercises') or [],
+                'modification_summary': modification_result['modification_summary']
+            })
+
         workout_data = dict(workout_plan[0])
         workout_plan_id = workout_data['id']
         current_plan = json.loads(workout_data['workout_data'])
-        
-        # Extract today's workout from weekly plan
-        # For simplicity, we'll use the first day's workout
+
         today_workout = []
         if 'weekly_plan' in current_plan and len(current_plan['weekly_plan']) > 0:
             today_workout = current_plan['weekly_plan'][0].get('exercises', [])
-        
+
         if not today_workout:
+            modification_result = modify_workout_for_pain(
+                pain_text=pain_text,
+                today_workout_plan=[],
+                pain_keywords=PAIN_KEYWORDS,
+                exercises_df=EXERCISES,
+                exercise_contraindications=EXERCISE_CONTRAINDICATIONS,
+                recovery_exercises=RECOVERY_EXERCISES
+            )
+            mw = modification_result['modified_workout'] or []
+            if not mw and modification_result.get('pain_detected'):
+                if modification_result.get('severity') == 'high' or modification_result.get('medical_attention_needed'):
+                    mw = []
+                else:
+                    mw = _generic_mobility_suggestions(modification_result.get('affected_body_part'))
+            elif not mw:
+                mw = _generic_mobility_suggestions(None)
+
+            pain_report_id = execute_insert("""
+                INSERT INTO pain_reports (
+                    user_id, pain_text, affected_body_part
+                ) VALUES (?, ?, ?)
+            """, (
+                user_id,
+                pain_text,
+                modification_result['affected_body_part']
+            ))
+
+            if not mw and (modification_result.get('severity') == 'high' or modification_result.get('medical_attention_needed')):
+                friendly = (
+                    'Today has no exercises listed in your plan. '
+                    f"{modification_result['immediate_action']}"
+                )
+            else:
+                friendly = (
+                    'Today looks like a rest day or your session has no exercises listed. '
+                    'Here are gentle mobility ideas you can try. Move lightly and stop if pain increases.'
+                )
+
             return jsonify({
-                'error': 'No exercises found in today\'s workout',
-                'message': 'Workout plan may be empty'
-            }), 404
-        
-        # Apply pain modifications using pain_handler
+                'success': True,
+                'mobility_only': True,
+                'no_workout_today': False,
+                'rest_day': True,
+                'message': friendly,
+                'pain_report_id': pain_report_id,
+                'pain_detected': modification_result['pain_detected'],
+                'affected_body_part': modification_result['affected_body_part'],
+                'severity': modification_result['severity'],
+                'medical_attention_needed': modification_result['medical_attention_needed'],
+                'immediate_action': modification_result['immediate_action'],
+                'modified_workout': mw,
+                'removed_exercises': [],
+                'added_exercises': modification_result.get('added_exercises') or [],
+                'modification_summary': modification_result['modification_summary']
+            })
+
         modification_result = modify_workout_for_pain(
             pain_text=pain_text,
             today_workout_plan=today_workout,
@@ -873,20 +1073,20 @@ def adaptive_workout():
             exercise_contraindications=EXERCISE_CONTRAINDICATIONS,
             recovery_exercises=RECOVERY_EXERCISES
         )
-        
-        # Update the workout plan with modified exercises
-        current_plan['weekly_plan'][0]['exercises'] = modification_result['modified_workout']
-        
-        # Save updated workout plan to database
-        with get_db() as conn:
-            cursor = conn.cursor()
-            cursor.execute("""
-                UPDATE workout_plans
-                SET workout_data = ?
-                WHERE id = ?
-            """, (json.dumps(current_plan), workout_plan_id))
-        
-        # Log pain report to database
+
+        if modification_result.get('pain_detected'):
+            bp = modification_result.get('affected_body_part')
+            mw = modification_result.get('added_exercises') or []
+            mw.extend(_generic_mobility_suggestions(bp))
+            
+            modification_result['modified_workout'] = mw
+            modification_result['removed_exercises'] = today_workout
+            modification_result['modification_summary'] = (
+                f"Pain detected in {bp} ({modification_result.get('severity')}). "
+                "Switched your entire workout today to a dedicated mobility and recovery flow to prioritize your healing."
+            )
+            modification_result['mobility_only'] = True
+
         pain_report_id = execute_insert("""
             INSERT INTO pain_reports (
                 user_id, pain_text, affected_body_part
@@ -896,10 +1096,11 @@ def adaptive_workout():
             pain_text,
             modification_result['affected_body_part']
         ))
-        
+
         return jsonify({
             'success': True,
-            'message': 'Workout adapted based on pain feedback',
+            'mobility_only': modification_result.get('mobility_only', False),
+            'message': 'Workout fully adapted to focus on your recovery today.',
             'pain_report_id': pain_report_id,
             'pain_detected': modification_result['pain_detected'],
             'affected_body_part': modification_result['affected_body_part'],

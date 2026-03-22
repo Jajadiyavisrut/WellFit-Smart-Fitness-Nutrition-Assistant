@@ -1,6 +1,20 @@
 // WellFit JavaScript - API Integration
 
 const API_BASE = '';
+const WF_NAME_KEY = 'wellfit_full_name';
+
+/** Sync optional display name from profile API to localStorage and [data-wf-display-name] nodes */
+function syncDisplayNameFromProfile(profile) {
+    if (!profile) return;
+    const n = profile.full_name != null && String(profile.full_name).trim()
+        ? String(profile.full_name).trim()
+        : '';
+    if (n) localStorage.setItem(WF_NAME_KEY, n);
+    else localStorage.removeItem(WF_NAME_KEY);
+    document.querySelectorAll('[data-wf-display-name]').forEach((el) => {
+        el.textContent = n || 'there';
+    });
+}
 
 // Utility function to show messages
 function showMessage(elementId, message, type) {
@@ -87,6 +101,15 @@ async function login(event) {
         if (response.ok) {
             showMessage('message', 'Login successful! Redirecting...', 'success');
             localStorage.setItem('user_id', data.user.id);
+            try {
+                const pr = await fetch(`${API_BASE}/api/profile/${data.user.id}`, {
+                    credentials: 'include'
+                });
+                if (pr.ok) {
+                    const pd = await pr.json();
+                    syncDisplayNameFromProfile(pd.profile);
+                }
+            } catch (_) { /* optional profile fetch */ }
             setTimeout(() => window.location.href = '/dashboard.html', 1500);
         } else {
             showMessage('message', data.error || 'Login failed', 'error');
@@ -102,8 +125,10 @@ async function saveProfile(event) {
 
     const userId = localStorage.getItem('user_id') || 1;
 
+    const fullNameEl = document.getElementById('full_name');
     const profileData = {
         user_id: parseInt(userId),
+        full_name: fullNameEl ? fullNameEl.value.trim() : '',
         age: parseInt(document.getElementById('age').value),
         gender: document.getElementById('gender').value,
         height_cm: parseFloat(document.getElementById('height_cm').value),
@@ -128,6 +153,7 @@ async function saveProfile(event) {
         const data = await response.json();
 
         if (response.ok) {
+            if (data.profile) syncDisplayNameFromProfile(data.profile);
             showMessage('message', 'Profile saved! Redirecting to dashboard...', 'success');
             setTimeout(() => window.location.href = '/dashboard.html', 1500);
         } else {
@@ -146,6 +172,13 @@ async function saveProfile(event) {
 // Check if user has profile and load dashboard data
 async function initDashboard() {
     try {
+        const stored = localStorage.getItem(WF_NAME_KEY);
+        if (stored && stored.trim()) {
+            document.querySelectorAll('[data-wf-display-name]').forEach((el) => {
+                el.textContent = stored.trim();
+            });
+        }
+
         const userId = localStorage.getItem('user_id') || 1;
 
         // Check if profile exists
@@ -181,11 +214,13 @@ async function initDashboard() {
 function displayUserProfile(profile) {
     if (!profile) return;
 
+    syncDisplayNameFromProfile(profile);
+
     const profileInfo = document.getElementById('profileInfo');
     if (profileInfo) {
         profileInfo.innerHTML = `
-            <strong>${profile.age}y, ${profile.gender}</strong> | 
-            Goal: ${profile.fitness_goal.replace('_', ' ')} | 
+            <strong>${profile.age}y, ${profile.gender}</strong> |
+            Goal: ${profile.fitness_goal.replace('_', ' ')} |
             ${profile.workout_days_per_week} days/week
         `;
     }
@@ -264,14 +299,23 @@ function displayDietPlan(dietPlan) {
         </div>
     </div>`;
 
-    meals.forEach(meal => {
-        html += `<div class="plan-item">
+    const mealCard = (meal) => `<div class="plan-item">
             <h4>${meal.meal_type || 'Meal'}</h4>
             <p><strong>${meal.food_name}</strong></p>
             <p>Quantity: ${meal.quantity_g}g | Calories: ${meal.calories.toFixed(0)} | Protein: ${meal.protein_g.toFixed(1)}g</p>
             <p>Cost: Rs.${meal.cost.toFixed(2)}</p>
         </div>`;
+
+    if (!meals || meals.length === 0) {
+        container.innerHTML = `${html}<p class="loading">No meals in this plan.</p>`;
+        return;
+    }
+
+    html += '<div class="wf-diet-meals-scroll" role="region" aria-label="Meals list">';
+    meals.forEach((meal) => {
+        html += mealCard(meal);
     });
+    html += '</div>';
 
     container.innerHTML = html;
 }
@@ -415,35 +459,54 @@ async function adaptWorkout(event) {
     }
 }
 
-// Show pain adaptation alert
-// Show pain adaptation alert and modified workout
+// Show pain adaptation alert and modified / mobility exercises
 function showPainAlert(data) {
-    // Show the result container
-    document.getElementById('painResult').style.display = 'block';
+    const painResult = document.getElementById('painResult');
+    if (painResult) painResult.style.display = 'block';
 
     const alert = document.getElementById('painAlert');
+    const mobility = data.mobility_only === true;
+    const title = mobility
+        ? (data.no_workout_today ? 'No workout saved for today' : 'Recovery & mobility')
+        : `Workout updated for ${data.affected_body_part || 'your feedback'}`;
+
+    const msgBlock = data.message
+        ? `<p style="margin:10px 0 0; line-height:1.5; color: inherit;">${data.message}</p>`
+        : '';
+
     alert.innerHTML = `
-        <strong>Workout Adapted for ${data.affected_body_part || 'Pain'}</strong>
-        <p>Severity: ${data.severity} | Medical Attention: ${data.medical_attention_needed ? 'Yes' : 'No'}</p>
-        <p>${data.modification_summary}</p>
-        <p><em>${data.immediate_action}</em></p>
+        <strong>${title}</strong>
+        ${data.affected_body_part ? `<p style="margin:8px 0 0; opacity:0.95;">Area noted: ${data.affected_body_part}</p>` : ''}
+        <p style="margin:8px 0 0; font-size:0.9rem; opacity:0.9;">
+            ${data.severity ? `Severity: ${data.severity}` : ''}
+            ${data.medical_attention_needed ? ' · If pain is severe or worsening, seek professional care.' : ''}
+        </p>
+        ${msgBlock}
+        ${data.modification_summary ? `<p style="margin:10px 0 0; font-size:0.88rem; opacity:0.9;">${data.modification_summary}</p>` : ''}
+        ${data.immediate_action ? `<p style="margin:10px 0 0;"><em>${data.immediate_action}</em></p>` : ''}
     `;
     alert.style.display = 'block';
 
-    // Render the exercises
     const listContainer = document.getElementById('adaptedExercises');
+    if (!listContainer) return;
+
+    const cardStyle =
+        'border-left:4px solid #a855f7; background:rgba(255,255,255,0.08); padding:12px; border-radius:8px; margin-bottom:10px;';
+    const textStyle = 'color:rgba(255,255,255,0.88);';
+    const subStyle = 'color:rgba(255,255,255,0.65); font-size:0.88rem;';
+
     if (data.modified_workout && data.modified_workout.length > 0) {
         let html = '';
-        data.modified_workout.forEach(ex => {
-            html += `<div class="exercise-item" style="border-left: 4px solid #48bb78; background: #f0fff4;">
-                <strong>${ex.name}</strong>
-                <span>${ex.sets} sets × ${ex.reps} reps | Rest: ${ex.rest_seconds}s</span>
-                ${ex.instructions ? `<p style="font-size:0.85rem; color:#666; margin-top:5px;">${ex.instructions}</p>` : ''}
+        data.modified_workout.forEach((ex) => {
+            html += `<div class="exercise-item" style="${cardStyle}">
+                <strong style="${textStyle}">${ex.name}</strong>
+                <span style="${subStyle}"> ${ex.sets} × ${ex.reps} · Rest ${ex.rest_seconds}s</span>
+                ${ex.instructions ? `<p style="font-size:0.85rem; margin-top:6px; color:rgba(255,255,255,0.75);">${ex.instructions}</p>` : ''}
             </div>`;
         });
         listContainer.innerHTML = html;
     } else {
-        listContainer.innerHTML = '<p>No exercises for today (Rest Day).</p>';
+        listContainer.innerHTML = `<p style="${textStyle}">${data.message || 'Listen to your body — rest or very light movement if that feels better.'}</p>`;
     }
 }
 
@@ -471,158 +534,39 @@ async function logout() {
             credentials: 'include'
         });
         localStorage.removeItem('user_id');
+        localStorage.removeItem(WF_NAME_KEY);
         window.location.href = '/login.html';
     } catch (error) {
         console.error('Logout error:', error);
         localStorage.removeItem('user_id');
+        localStorage.removeItem(WF_NAME_KEY);
         window.location.href = '/login.html';
     }
 }
 
-// Chatbot for workout modifications
-let chatHistory = [];
-
-async function sendChatMessage() {
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-
-    if (!message) return;
-
-    // Add user message to chat
-    addChatMessage('user', message);
-    input.value = '';
 
 
-    // Show typing indicator
-    const chatMessages = document.getElementById('chatMessages');
-    const typingDiv = document.createElement('div');
-    typingDiv.id = 'typingIndicator';
-    typingDiv.style.cssText = 'display: flex; gap: 10px; margin-bottom: 16px;';
-    typingDiv.innerHTML = `
-        <div style="background: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
-            💪
-        </div>
-        <div style="background: white; padding: 12px 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
-            <div style="display: flex; gap: 4px; align-items: center;">
-                <div style="width: 8px; height: 8px; background: #999; border-radius: 50%; animation: typing 1.4s infinite;"></div>
-                <div style="width: 8px; height: 8px; background: #999; border-radius: 50%; animation: typing 1.4s infinite 0.2s;"></div>
-                <div style="width: 8px; height: 8px; background: #999; border-radius: 50%; animation: typing 1.4s infinite 0.4s;"></div>
-            </div>
-        </div>
-    `;
-    chatMessages.appendChild(typingDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-
-
-    try {
-        const response = await fetch(`${API_BASE}/api/chat-workout`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            credentials: 'include',
-            body: JSON.stringify({ message: message, history: chatHistory })
-        });
-
-        const data = await response.json();
-
-        // Remove typing indicator
-        typingDiv.remove();
-
-        if (response.ok) {
-            addChatMessage('bot', data.response);
-            chatHistory.push({ user: message, bot: data.response });
-
-            // If workout was modified, reload the plan
-            if (data.workout_modified) {
-                loadTodayPlan();
-            }
-        } else {
-            addChatMessage('bot', 'Sorry, I encountered an error. Please try again.');
-        }
-    } catch (error) {
-        typingDiv.remove();
-        addChatMessage('bot', 'Network error. Please check your connection.');
-    }
-}
-
-function addChatMessage(sender, message) {
-    const chatMessages = document.getElementById('chatMessages');
-    const messageDiv = document.createElement('div');
-
-    if (sender === 'bot') {
-        messageDiv.style.cssText = 'display: flex; gap: 10px; margin-bottom: 16px;';
-        messageDiv.innerHTML = `
-            <div style="background: white; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;">
-                💪
-            </div>
-            <div style="background: white; padding: 12px 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); max-width: 75%;">
-                <p style="margin: 0; color: #333; line-height: 1.5;">${message}</p>
-            </div>
-        `;
-    } else {
-        messageDiv.style.cssText = 'display: flex; gap: 10px; margin-bottom: 16px; justify-content: flex-end;';
-        messageDiv.innerHTML = `
-            <div style="background: #1e88e5; padding: 12px 16px; border-radius: 12px; box-shadow: 0 1px 2px rgba(0,0,0,0.1); max-width: 75%;">
-                <p style="margin: 0; color: white; line-height: 1.5;">${message}</p>
-            </div>
-        `;
-    }
-
-    chatMessages.appendChild(messageDiv);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}
-
-function toggleChat() {
-    const chatbot = document.getElementById('chatbot');
-    chatbot.style.display = chatbot.style.display === 'none' ? 'flex' : 'none';
-}
-
-// Handle Enter key in chat input
-document.addEventListener('DOMContentLoaded', () => {
-    const chatInput = document.getElementById('chatInput');
-    if (chatInput) {
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                sendChatMessage();
-            }
-        });
-    }
-});
-
-// Toggle between diet, workout, and pain plans
+// Toggle between combined diet+workout view and pain tab
 function showPlan(planType) {
-    const dietSection = document.getElementById('dietPlanSection');
-    const workoutSection = document.getElementById('workoutPlanSection');
+    const plansTab = document.getElementById('plansTab');
     const painSection = document.getElementById('painPlanSection');
-    const dietToggle = document.getElementById('dietToggle');
-    const workoutToggle = document.getElementById('workoutToggle');
-    const painToggle = document.getElementById('painToggle');
+    const tabPlans = document.getElementById('tabPlans');
+    const tabPain = document.getElementById('tabPain');
 
-    // Hide all sections
-    dietSection.style.display = 'none';
-    workoutSection.style.display = 'none';
-    painSection.style.display = 'none';
+    if (!plansTab || !painSection) return;
 
-    // Reset all button styles
-    dietToggle.style.background = 'transparent';
-    dietToggle.style.color = '#666';
-    workoutToggle.style.background = 'transparent';
-    workoutToggle.style.color = '#666';
-    painToggle.style.background = 'transparent';
-    painToggle.style.color = '#666';
+    const showPlans = planType === 'plans' || planType === 'diet' || planType === 'workout';
 
-    // Show selected section and highlight button
-    if (planType === 'diet') {
-        dietSection.style.display = 'block';
-        dietToggle.style.background = '#667eea';
-        dietToggle.style.color = 'white';
-    } else if (planType === 'workout') {
-        workoutSection.style.display = 'block';
-        workoutToggle.style.background = '#667eea';
-        workoutToggle.style.color = 'white';
+    if (showPlans) {
+        plansTab.style.display = 'block';
+        painSection.style.display = 'none';
+        tabPlans?.classList.add('wf-tab-active');
+        tabPain?.classList.remove('wf-tab-active');
     } else if (planType === 'pain') {
+        plansTab.style.display = 'none';
         painSection.style.display = 'block';
-        painToggle.style.background = '#667eea';
-        painToggle.style.color = 'white';
+        tabPlans?.classList.remove('wf-tab-active');
+        tabPain?.classList.add('wf-tab-active');
     }
 }
 
@@ -645,7 +589,7 @@ async function loadProfileData() {
 
             // Populate form fields
             const fields = [
-                'age', 'gender', 'height_cm', 'weight_kg', 'fitness_goal',
+                'full_name', 'age', 'gender', 'height_cm', 'weight_kg', 'fitness_goal',
                 'experience_level', 'workout_days', 'workout_time',
                 'diet_type', 'monthly_budget', 'split_preference'
             ];

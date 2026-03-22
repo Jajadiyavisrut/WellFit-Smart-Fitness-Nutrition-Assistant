@@ -31,3 +31,10 @@ neck strain,neck,0.71,"poor posture, stress, sleeping position, heavy lifting","
 neck stiffness,neck,0.39,"poor posture, stress, sleeping position, heavy lifting","overhead_press,upright_rows,heavy_lifting,shrugs","lower_body_exercises,gentle_neck_stretches,posture_exercises",4,False,"Improve posture, manage stress, proper pillow support","Reduce intensity, gentle stretching, monitor symptoms"
 whiplash,neck,0.39,"poor posture, stress, sleeping position, heavy lifting","overhead_press,upright_rows,heavy_lifting,shrugs","lower_body_exercises,gentle_neck_stretches,posture_exercises",6,False,"Improve posture, manage stress, proper pillow support","Reduce intensity, gentle stretching, monitor symptoms"
 neck spasm,neck,0.89,"poor posture, stress, sleeping position, heavy lifting","overhead_press,upright_rows,heavy_lifting,shrugs","lower_body_exercises,gentle_neck_stretches,posture_exercises",21,True,"Improve posture, manage stress, proper pillow support","Stop activity immediately, apply ice, seek medical attention"
+leg,leg,0.5,"overuse, strain","squats,lunges,jumping,running,leg_press","upper_body_exercises,seated_exercises,swimming",4,False,Rest and elevate,"Reduce intensity, gentle stretching"
+sick,general,0.6,illness,"heavy_lifting,high_intensity_cardio","light_walking,yoga,stretching",3,False,Hydration and sleep,"Stop intense activity, rest"
+not feeling well,general,0.6,illness,"heavy_lifting,high_intensity_cardio","light_walking,yoga,stretching",3,False,Hydration and sleep,"Stop intense activity, rest"
+tired,general,0.4,fatigue,"heavy_lifting,high_intensity_cardio","light_walking,yoga,stretching",1,False,Sleep and nutrition,Reduce intensity or rest
+exhausted,general,0.7,fatigue,"heavy_lifting,high_intensity_cardio","light_walking,yoga,stretching",2,False,Sleep and nutrition,"Stop activity, complete rest"
+foot,foot,0.5,overuse,"running,jumping,heavy_squats","swimming,cycling,upper_body",4,False,Proper footwear,Rest and elevate
+arm,arm,0.5,overuse,"heavy_pressing,pull_ups","lower_body_exercises,core",4,False,Proper form,"Reduce intensity, gentle stretching"
