@@ -2,153 +2,73 @@
 
 [![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
 [![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
+[![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-3ECF8E.svg)](https://supabase.com/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-**WellFit** is an AI-powered fitness and nutrition assistant that provides personalized, budget-aware, and pain-adaptive workout and diet plans. Built to help users train safely, eat affordably, and stay consistent with their fitness journey.
+**WellFit** is an intelligent, AI-driven fitness and nutrition application that provides personalized, budget-aware, and pain-adaptive workout and diet plans. Featuring a premium, responsive glassmorphism aesthetic, WellFit is built to help users train safely, eat affordably, and stay consistent with their fitness journey.
 
 ---
 
 ## 🎯 Project Purpose
 
-WellFit is designed as a **real-world web application** (not an academic demo) that delivers:
-- **Personalized workout plans** based on user goals, experience, and availability
-- **Budget-conscious nutrition plans** using real Indian food price data
-- **Pain-adaptive training** that dynamically adjusts workouts based on user-reported discomfort
-- **Safe, practical fitness guidance** without medical diagnosis
+WellFit is designed as a **real-world web application** that delivers:
+- **Personalized workout plans** based on user goals, experience, and availability.
+- **Budget-conscious nutrition plans** tailored to real Indian food price data.
+- **Pain-adaptive training** that intelligently restructures workouts based on user-reported discomfort to prioritize mobility and recovery.
+- **A premium user experience** driven by a modern dark neon and glassmorphism interface.
 
 ---
 
 ## ✨ Key Features
 
-### 🔐 User Authentication
-- Secure registration and login system
-- Session-based authentication
+### 🔐 Supabase User Authentication
+- Secure registration and login system powered by **Supabase**.
+- Cross-session persistence and robust data security.
 
 ### 👤 Personal Fitness Profile
 Users can create and edit profiles with:
 - Age, height, weight
 - Fitness goal (fat loss / muscle gain / endurance)
 - Experience level (beginner / intermediate / advanced)
-- Workout frequency (days per week)
-- Session duration
+- Workout frequency (days per week) and session duration
 - Diet preference (vegetarian / non-vegetarian)
 - Monthly food budget
-- Location (state) for price estimation
+- Preferred Workout Split Style (Bro Split, PPL, etc.)
 
 ### 💪 Smart Workout Generation
-- Personalized exercise plans based on user profile
-- Goal-specific training programs
-- Time-optimized sessions
-- Experience-appropriate difficulty
+- Personalized exercise plans based on user profiles.
+- Automatic distribution of muscle groups across the week.
+- Time-optimized sessions and progressive difficulty.
 
 ### 🥗 Budget-Aware Nutrition Planning
-- Calorie and macro targets calculated automatically
-- Meal plans within user's monthly budget
-- Indian food database with real pricing
-- Cheaper alternatives suggested when over budget
-- Cost breakdown and comparison
+- Meal plans heavily optimized to fit within the user's defined monthly budget.
+- Automatic substitution with highly cost-efficient protein alternatives when budgets are tight.
+- Intelligent handling for Vegetarian and Non-Vegetarian choices.
 
-### 🩹 Pain-Adaptive Training
-- Free-text pain reporting
-- Keyword-based body part identification
-- **Same-day workout redesign** when pain is reported:
-  - Removes risky exercises
-  - Adds safer alternatives
-  - Recommends stretching and mobility work
-- Prioritizes safety and recovery
+### 🩹 Dynamic Pain & Injury Adaptation
+- Intelligent keyword-based pain detection.
+- **Instant Workout Redesign**: If a user reports an injury (e.g., "my knee hurts" or "I feel sick"), WellFit immediately scrubs heavy load-bearing exercises from the day's routine.
+- Instantly generates an alternative **Mobility and Recovery Flow** designed completely around the injured body part to ensure healing.
 
 ### 📊 Dashboard
-- Unified view of workout and nutrition plans
-- Calorie and macro tracking
-- Budget analysis
-- Quick access to profile editing
+- Luxurious glassmorphism UI offering a unified view of your entire week's routines.
+- Calorie and macro tracking alongside budget analysis.
 
 ---
 
 ## 🏗️ Architecture
 
 ### Tech Stack
-- **Backend**: Python + Flask
-- **Database**: SQLite
-- **Data Storage**: CSV files for reference data
-- **Frontend**: HTML, CSS, JavaScript
-- **APIs**: Custom REST APIs
+- **Backend & APIs**: Python + Flask
+- **Database & Auth**: Supabase (PostgreSQL)
+- **Data Storage**: CSV files for massive static reference datasets (foods, exercises).
+- **Frontend**: HTML5, Vanilla CSS3 (Glassmorphism), JavaScript
 
-### System Design Principles
-```
-┌─────────────┐
-│   Frontend  │  (HTML/CSS/JS)
-└──────┬──────┘
-       │
-┌──────▼──────┐
-│  REST APIs  │  (Flask routes)
-└──────┬──────┘
-       │
-┌──────▼──────┐
-│ Logic Layer │  (Business logic)
-└──────┬──────┘
-       │
-┌──────▼──────┬──────────────┐
-│  Database   │  CSV Files   │
-│  (SQLite)   │  (Reference) │
-└─────────────┴──────────────┘
-```
-
-### Modular Architecture
-- **APIs** (`/api`): REST endpoints for frontend communication
-- **Logic Layer** (`/logic`): All business logic and decision-making
-- **Database** (`/database`): User data, profiles, plans, pain reports
-- **CSV Data** (`/data/processed`): Static reference data (exercises, nutrition, prices)
-- **Templates** (`/templates`): HTML pages
-- **Static Assets** (`/static`): CSS and JavaScript
-
----
-
-## 📁 Project Structure
-
-```
-WellFit/
-├── api/                          # REST API endpoints
-│   ├── auth.py                   # Authentication APIs
-│   ├── profile.py                # Profile management
-│   ├── workout.py                # Workout plan APIs
-│   ├── diet.py                   # Diet plan APIs
-│   └── pain.py                   # Pain reporting
-├── logic/                        # Business logic layer
-│   ├── workout_generator.py      # Workout plan generation
-│   ├── diet_generator.py         # Diet plan generation
-│   ├── calorie_calculator.py     # Calorie/macro calculations
-│   ├── budget_logic.py           # Budget management
-│   ├── pain_handler.py           # Pain detection & adaptation
-│   └── data_loader.py            # CSV data loading
-├── database/                     # Database layer
-│   ├── models.py                 # SQLAlchemy models
-│   └── db_utils.py               # Database utilities
-├── data/
-│   └── processed/                # Processed CSV datasets
-│       ├── exercises_comprehensive.csv
-│       ├── food_nutrition_comprehensive.csv
-│       ├── food_prices_comprehensive.csv
-│       ├── pain_keywords_comprehensive.csv
-│       └── ...
-├── templates/                    # HTML templates
-│   ├── index.html
-│   ├── login.html
-│   ├── register.html
-│   ├── profile.html
-│   ├── dashboard.html
-│   ├── workout.html
-│   └── diet.html
-├── static/                       # Static assets
-│   ├── css/
-│   │   └── style.css
-│   └── js/
-│       └── main.js
-├── app.py                        # Flask application entry point
-├── config.py                     # Configuration settings
-├── init_db.py                    # Database initialization
-└── requirements.txt              # Python dependencies
-```
+### Modular Structure
+- **APIs** (`/api`): RESTful endpoints for seamless frontend communication.
+- **Logic Layer** (`/logic`): Contains the core `diet_generator.py` and `workout_generator.py` engines.
+- **Database Layer** (`/database`): PostgreSQL connection strings and schema initializers.
+- **Data Layer** (`/data/processed`): Static datasets to minimize database calls.
 
 ---
 
@@ -156,275 +76,57 @@ WellFit/
 
 ### Prerequisites
 - Python 3.8 or higher
-- pip (Python package manager)
+- A Supabase Project (for PostgreSQL and Authentication)
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/wellfit.git
-   cd wellfit
+   git clone https://github.com/Jajadiyavisrut/WellFit-Smart-Fitness-Nutrition-Assistant.git
+   cd "WellFit-Smart-Fitness-Nutrition-Assistant"
    ```
 
-2. **Create a virtual environment** (recommended)
-   ```bash
-   python -m venv venv
-   
-   # On Windows
-   venv\Scripts\activate
-   
-   # On macOS/Linux
-   source venv/bin/activate
+2. **Environment Configuration**
+   Create a `.env` file in the root directory containing your Supabase credentials:
+   ```env
+   SUPABASE_URL=your_supabase_project_url
+   SUPABASE_KEY=your_supabase_anon_key
+   DATABASE_URL=your_postgresql_connection_string
    ```
 
-3. **Install dependencies**
+3. **Install Dependencies**
    ```bash
    pip install -r requirements.txt
    ```
 
-4. **Initialize the database**
+4. **Initialize the Database Schema**
+   *Note: This will execute the required schema migrations on your Supabase Postgres instance.*
    ```bash
    python init_db.py
    ```
 
-5. **Run the application**
+5. **Run the Application**
    ```bash
    python app.py
    ```
 
-6. **Access the application**
-   - Open your browser and navigate to: `http://localhost:5000`
-
----
-
-## 📊 Data Strategy
-
-### CSV-Based Reference Data
-Static reference data is stored in CSV files and loaded into memory:
-- **exercises_comprehensive.csv**: Exercise database with muscle groups, difficulty, equipment
-- **food_nutrition_comprehensive.csv**: Nutritional information for Indian foods
-- **food_prices_comprehensive.csv**: Price estimates for food items by state
-- **pain_keywords_comprehensive.csv**: Keywords for pain detection and body part mapping
-
-### Database Storage
-SQLite database stores only dynamic user data:
-- User accounts and authentication
-- User fitness profiles
-- Generated workout plans
-- Generated diet plans
-- Pain reports and history
-
-**Why this approach?**
-- Reference data doesn't change frequently
-- Faster reads from memory
-- Simpler deployment
-- Easy data updates via CSV replacement
-
----
-
-## 🔄 Core User Flow
-
-1. **Registration & Login**
-   - User creates an account
-   - Secure authentication
-
-2. **Profile Creation**
-   - User fills out fitness profile
-   - System validates and stores data
-
-3. **Plan Generation**
-   - System analyzes profile
-   - Generates personalized workout plan
-   - Generates budget-aware nutrition plan
-   - Calculates calorie and macro targets
-
-4. **Dashboard View**
-   - User sees complete fitness overview
-   - Workout schedule
-   - Meal plans with costs
-   - Macro breakdown
-
-5. **Pain Reporting** (Optional)
-   - User reports pain in free text
-   - System identifies affected body parts
-   - **Same-day workout is redesigned**:
-     - Risky exercises removed
-     - Safer alternatives added
-     - Recovery exercises recommended
-
-6. **Profile Updates**
-   - User can edit profile anytime
-   - Plans automatically regenerate
-
----
-
-## 🧠 Logic Highlights
-
-### Budget Management
-- Diet plans must fit within monthly budget
-- Real Indian grocery price data
-- Automatic substitution with cheaper alternatives
-- Clear cost breakdown displayed
-
-### Pain Handling
-- Keyword-based pain detection (no ML required)
-- Body part identification from user text
-- **No medical diagnosis** – safety-first approach
-- Dynamic workout modification
-- Stretching and mobility recommendations
-
-### Workout Personalization
-- Goal-based exercise selection (fat loss / muscle gain / endurance)
-- Experience-level appropriate difficulty
-- Time-constrained session planning
-- Progressive overload principles
-
-### Nutrition Personalization
-- Calorie targets based on TDEE calculations
-- Macro split aligned with fitness goals
-- Diet preference respected (veg/non-veg)
-- Budget constraints honored
+6. **Access the Web App**
+   Open your browser and navigate to: `http://localhost:5001`
 
 ---
 
 ## 🛡️ What WellFit Does NOT Do
 
-- ❌ Provide medical advice or diagnosis
-- ❌ Replace professional healthcare
-- ❌ Use paid external APIs for core logic
-- ❌ Overcomplicate with unnecessary ML
-- ❌ Mix data, logic, and UI responsibilities
-
----
-
-## 🔧 API Endpoints
-
-### Authentication
-- `POST /api/register` - User registration
-- `POST /api/login` - User login
-- `POST /api/logout` - User logout
-
-### Profile Management
-- `GET /api/profile` - Get user profile
-- `POST /api/profile` - Create/update profile
-
-### Workout Plans
-- `GET /api/workout` - Get current workout plan
-- `POST /api/workout/generate` - Generate new workout plan
-
-### Diet Plans
-- `GET /api/diet` - Get current diet plan
-- `POST /api/diet/generate` - Generate new diet plan
-
-### Pain Reporting
-- `POST /api/pain/report` - Report pain/discomfort
-- `GET /api/pain/history` - Get pain report history
-
----
-
-## 🎨 Frontend
-
-### Pages
-- **Landing Page** (`index.html`): Introduction and features
-- **Login** (`login.html`): User authentication
-- **Register** (`register.html`): New user signup
-- **Profile** (`profile.html`): Fitness profile creation/editing
-- **Dashboard** (`dashboard.html`): Main user interface
-- **Workout** (`workout.html`): Detailed workout view
-- **Diet** (`diet.html`): Detailed nutrition view
-
-### Design Principles
-- Clean, minimal UI
-- Mobile-responsive
-- Accessibility-focused
-- Fast loading times
-
----
-
-## 🧪 Testing
-
-### Manual Testing Checklist
-- [ ] User registration and login
-- [ ] Profile creation with various goals
-- [ ] Workout plan generation
-- [ ] Diet plan generation within budget
-- [ ] Pain reporting and workout adaptation
-- [ ] Profile editing and plan regeneration
-
-### Future Enhancements
-- Unit tests for logic layer
-- Integration tests for APIs
-- End-to-end testing
-
----
-
-## 📝 Development Roadmap
-
-### ✅ Completed
-- User authentication system
-- Profile management
-- Workout plan generation
-- Diet plan generation
-- Budget-aware meal planning
-- Pain-adaptive training
-- Dashboard interface
-
-### 🔄 In Progress
-- Enhanced UI/UX improvements
-- Additional exercise variations
-- More food options
-
-### 📋 Planned
-- Progress tracking and analytics
-- Workout history logging
-- Meal prep suggestions
-- Export plans to PDF
-- Mobile app version
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+- ❌ Provide medical advice or medical diagnosis.
+- ❌ Replace professional healthcare.
+- ❌ Rely on paid external generative AI APIs for core logic (completely free and programmatic).
 
 ---
 
 ## 👨‍💻 Author
 
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
-
----
-
-## 🙏 Acknowledgments
-
-- Exercise data sourced from public fitness datasets
-- Nutrition data from Indian food databases
-- Price data from Kaggle datasets
-- Inspired by the need for accessible, budget-friendly fitness guidance
-
----
-
-## 📞 Support
-
-If you have any questions or need help, please:
-- Open an issue on GitHub
-- Contact via email
-
----
+**Visrut Jajadiya**
+- GitHub: [@Jajadiyavisrut](https://github.com/Jajadiyavisrut)
 
 <div align="center">
   <strong>Built with ❤️ for a healthier, fitter India</strong>
