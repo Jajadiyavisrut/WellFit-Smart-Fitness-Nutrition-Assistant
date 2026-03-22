@@ -1,0 +1,28 @@
+These folders are NOT needed for deploying to production securely:
+- venv/
+- .git/
+- .vscode/
+- __pycache__/
+- data_collection/
+- WellFit-Smart-Fitness-Nutrition-Assistant/
+
+These files are NOT needed for deploying to production securely:
+- .DS_Store
+- files_to_exclude.txt
+- check_plans.py
+- verify_schema.py
+- migrate_add_split_preference.py
+- test_adaptive_workout.py
+- test_api.py
+- test_auth.py
+- test_database.py
+- test_db_endpoint.py
+- test_pain.py
+- test_plan_generation.py
+- test_profile_api.py
+- test_validation.py
+- test_workout.py
+
+NOTE regarding .env and init_db.py: 
+You DO need the values inside `.env` (like your DATABASE_URL) to make the deployed app work, but you shouldn't upload the actual `.env` file to your hosting provider directly. Instead, you typically paste those keys into your hosting provider's "Environment Variables" dashboard.
+`init_db.py` is only strictly needed to create the tables in Supabase for the first time, but not needed to actually serve the application online.

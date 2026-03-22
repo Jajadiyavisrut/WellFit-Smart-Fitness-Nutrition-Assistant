@@ -6,8 +6,8 @@ Flask-SQLAlchemy==3.0.5
 Werkzeug==2.3.7
 
 # Data processing
-pandas==2.1.1
-numpy==1.24.3
+pandas>=2.1.1
+numpy>=1.24.3
 
 # Development and plotting
 pytest==7.4.2
@@ -20,8 +20,7 @@ gunicorn==21.2.0
 # Environment management
 python-dotenv==1.0.0
 
-
-
-
-
-and also mention links from where you get data from platform and make it in one txt file
+# Supabase and DB
+psycopg2-binary>=2.9.9
+supabase>=2.10.0
+websockets>=14.0

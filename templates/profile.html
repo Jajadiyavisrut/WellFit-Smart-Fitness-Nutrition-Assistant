@@ -1,112 +1,410 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Profile - WellFit</title>
-    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+
+        body {
+            background-image: url('/static/profile_bg.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            background-color: #1a1025; /* fallback */
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Navbar */
+        .navbar {
+            width: 100%;
+            max-width: 1200px;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffffff;
+        }
+
+        .logo-icon {
+            color: #4ade80; /* bright green */
+            font-weight: 900;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 30px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #e2d5f8;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 15px;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        .nav-icons {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .nav-icons svg {
+            width: 20px;
+            height: 20px;
+            fill: #e2d5f8;
+            cursor: pointer;
+            transition: fill 0.3s;
+        }
+
+        .nav-icons svg:hover {
+            fill: #ffffff;
+        }
+
+        /* Glassmorphism Card */
+        .profile-container {
+            background: rgba(40, 20, 60, 0.45);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 40px 50px;
+            width: 100%;
+            max-width: 800px;
+            margin: 40px 20px 60px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .header-section {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .header-section h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .header-section p {
+            color: #d8b4e2;
+            font-size: 15px;
+        }
+
+        /* Split Layout */
+        .form-layout {
+            display: flex;
+            gap: 40px;
+        }
+
+        /* Left Column: Avatar */
+        .avatar-col {
+            width: 160px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .avatar-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.2);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            position: relative;
+        }
+
+        .avatar-circle svg {
+            width: 60px;
+            height: 60px;
+            fill: rgba(255, 255, 255, 0.6);
+            margin-top: 15px;
+        }
+
+        .upload-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+
+        .upload-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        /* Right Column: Form Data */
+        .form-col {
+            flex-grow: 1;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 20px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #f1e4fa;
+        }
+
+        .form-group input, 
+        .form-group select {
+            width: 100%;
+            background: rgba(20, 10, 35, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 6px;
+            padding: 12px 14px;
+            color: #ffffff;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+
+        .form-group select option {
+            background-color: #2a1b3d;
+            color: #fff;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 0 2px rgba(168, 85, 247, 0.2);
+            background: rgba(20, 10, 35, 0.7);
+        }
+
+        .submit-btn {
+            width: 100%;
+            margin-top: 10px;
+            background: linear-gradient(90deg, #6b21a8, #be185d);
+            border: none;
+            padding: 14px;
+            border-radius: 6px;
+            color: white;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s, filter 0.2s;
+            box-shadow: 0 4px 15px rgba(190, 24, 93, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(190, 24, 93, 0.6);
+            filter: brightness(1.1);
+        }
+
+        /* Shared message UI */
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            display: none;
+            font-size: 14px;
+            text-align: center;
+        }
+        .message.success {
+            background: rgba(74, 222, 128, 0.2);
+            color: #86efac;
+            border: 1px solid rgba(74, 222, 128, 0.3);
+        }
+        .message.error {
+            background: rgba(248, 113, 113, 0.2);
+            color: #fca5a5;
+            border: 1px solid rgba(248, 113, 113, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            .form-layout {
+                flex-direction: column;
+                align-items: center;
+                gap: 30px;
+            }
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+            .profile-container {
+                padding: 30px 20px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-    <div class="container">
-        <h1>Your Profile</h1>
-        <p>Tell us about yourself to get personalized plans</p>
+    <nav class="navbar">
+        <div class="logo">
+            <span class="logo-icon">||-||</span> WellFit
+        </div>
+        <div class="nav-links">
+            <a href="/">Home</a>
+            <a href="/workout.html">Workouts</a>
+        </div>
+        <div class="nav-icons">
+            <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+            <svg viewBox="0 0 24 24"><path d="M3 18h18v-2H3v2zm0-5h18v-2H3v2zm0-7v2h18V6H3z"/></svg>
+        </div>
+    </nav>
+
+    <div class="profile-container">
+        <div class="header-section">
+            <h1>Your Profile</h1>
+            <p>Tell us about yourself to get personalized plans</p>
+        </div>
 
         <div id="message" class="message"></div>
 
-        <form onsubmit="saveProfile(event)">
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="age">Age</label>
-                    <input type="number" id="age" required min="15" max="100" placeholder="25">
+        <form onsubmit="saveProfile(event)" class="form-layout">
+            
+            <!-- Form Inputs -->
+            <div class="form-col">
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="age">Age</label>
+                        <input type="number" id="age" required min="15" max="100" placeholder="19">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="gender">Gender</label>
+                        <select id="gender" required>
+                            <option value="">Select...</option>
+                            <option value="male">Male</option>
+                            <option value="female">Female</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="height_cm">Height (cm)</label>
+                        <input type="number" id="height_cm" required min="100" max="250" placeholder="181">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="weight_kg">Weight (kg)</label>
+                        <input type="number" id="weight_kg" required min="30" max="300" placeholder="45">
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="gender">Gender</label>
-                    <select id="gender" required>
+                    <label for="fitness_goal">Fitness Goal</label>
+                    <select id="fitness_goal" required>
                         <option value="">Select...</option>
-                        <option value="male">Male</option>
-                        <option value="female">Female</option>
+                        <option value="lose_weight">Lose Weight</option>
+                        <option value="maintain">Maintain Weight</option>
+                        <option value="gain_muscle">Gain Muscle</option>
                     </select>
                 </div>
-            </div>
 
-            <div class="grid-2">
                 <div class="form-group">
-                    <label for="height_cm">Height (cm)</label>
-                    <input type="number" id="height_cm" required min="100" max="250" placeholder="175">
+                    <label for="experience_level">Experience Level</label>
+                    <select id="experience_level" required>
+                        <option value="">Select...</option>
+                        <option value="beginner">Beginner</option>
+                        <option value="intermediate">Intermediate</option>
+                    </select>
+                </div>
+
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label for="workout_days">Workout Days/Week</label>
+                        <input type="number" id="workout_days" required min="0" max="7" placeholder="1">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="workout_time">Workout Time (min)</label>
+                        <input type="number" id="workout_time" required min="20" max="120" placeholder="25">
+                    </div>
                 </div>
 
                 <div class="form-group">
-                    <label for="weight_kg">Weight (kg)</label>
-                    <input type="number" id="weight_kg" required min="30" max="300" placeholder="70">
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label for="fitness_goal">Fitness Goal</label>
-                <select id="fitness_goal" required>
-                    <option value="">Select...</option>
-                    <option value="lose_weight">Lose Weight</option>
-                    <option value="maintain">Maintain Weight</option>
-                    <option value="gain_muscle">Gain Muscle</option>
-                </select>
-            </div>
-
-            <div class="form-group">
-                <label for="experience_level">Experience Level</label>
-                <select id="experience_level" required>
-                    <option value="">Select...</option>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                </select>
-            </div>
-
-            <div class="grid-2">
-                <div class="form-group">
-                    <label for="workout_days">Workout Days/Week</label>
-                    <input type="number" id="workout_days" required min="0" max="7" placeholder="3">
+                    <label for="split_preference">Workout Split Style</label>
+                    <select id="split_preference" required>
+                        <option value="">Select...</option>
+                        <option value="default">Default</option>
+                        <option value="one_muscle_per_day">One Muscle Per Day</option>
+                    </select>
                 </div>
 
                 <div class="form-group">
-                    <label for="workout_time">Workout Time (min)</label>
-                    <input type="number" id="workout_time" required min="20" max="120" placeholder="60">
+                    <label for="diet_type">Diet Type</label>
+                    <select id="diet_type" required>
+                        <option value="">Select...</option>
+                        <option value="veg">Vegetarian</option>
+                        <option value="non-veg">Non-Vegetarian</option>
+                    </select>
                 </div>
-            </div>
 
-            <div class="form-group">
-                <label for="split_preference">Workout Split Style</label>
-                <select id="split_preference" required>
-                    <option value="">Select...</option>
-                    <option value="default">Default (Compound Splits)</option>
-                    <option value="one_muscle_per_day">One Muscle Per Day</option>
-                </select>
-            </div>
+                <div class="form-group">
+                    <label for="monthly_budget">Monthly Budget (Rs.)</label>
+                    <input type="number" id="monthly_budget" required min="1000" placeholder="1493">
+                </div>
 
-            <div class="form-group">
-                <label for="diet_type">Diet Type</label>
-                <select id="diet_type" required>
-                    <option value="">Select...</option>
-                    <option value="veg">Vegetarian</option>
-                    <option value="non-veg">Non-Vegetarian</option>
-                </select>
+                <button type="submit" class="submit-btn" id="save-btn">Save Profile & Continue</button>
             </div>
-
-            <div class="form-group">
-                <label for="monthly_budget">Monthly Budget (Rs.)</label>
-                <input type="number" id="monthly_budget" required min="1000" placeholder="6000">
-            </div>
-
-            <button type="submit">Save Profile & Continue</button>
         </form>
     </div>
 
+    <!-- Script imports at the end -->
     <script src="/static/js/app.js"></script>
     <script>
-        // Load existing profile if editing
+        // Use existing logic to load user data from token and prepopulate
         document.addEventListener('DOMContentLoaded', loadProfileData);
+
+        // Quick active state adjustment for save button aesthetics (already has CSS animation but just in case)
+        const btn = document.getElementById('save-btn');
+        btn.addEventListener('mousedown', () => btn.style.transform = 'scale(0.98)');
+        btn.addEventListener('mouseup', () => btn.style.transform = 'translateY(-2px)');
     </script>
 </body>
-
 </html>
