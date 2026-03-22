@@ -1,0 +1,541 @@
+food_id,food_name,region,region_type,price_per_kg,currency,unit,last_updated,season,availability,quality_grade,is_organic,fitness_category
+1,Chicken Breast,mumbai,metro,556.12,INR,KG,2024-01-01,winter,high,premium,False,protein
+2,Eggs,mumbai,metro,8.54,INR,piece,2024-01-01,winter,low,premium,False,protein
+3,Fish,mumbai,metro,582.09,INR,KG,2024-01-01,all_year,low,standard,False,protein
+4,Paneer,mumbai,metro,839.07,INR,KG,2024-01-01,all_year,medium,premium,False,protein
+5,Tofu,mumbai,metro,444.02,INR,KG,2024-01-01,monsoon,low,premium,True,general
+6,Brown Rice,mumbai,metro,134.25,INR,KG,2024-01-01,summer,high,economy,True,carbs
+7,Oats,mumbai,metro,254.2,INR,KG,2024-01-01,summer,medium,economy,True,carbs
+8,Quinoa,mumbai,metro,738.12,INR,KG,2024-01-01,winter,high,premium,False,carbs
+9,Sweet Potato,mumbai,metro,54.2,INR,KG,2024-01-01,all_year,low,premium,True,general
+10,Almonds,mumbai,metro,1230.58,INR,KG,2024-01-01,monsoon,high,premium,True,general
+11,Walnuts,mumbai,metro,1714.21,INR,KG,2024-01-01,all_year,high,standard,True,healthy_fats
+12,Olive Oil,mumbai,metro,1258.06,INR,KG,2024-01-01,winter,medium,premium,False,healthy_fats
+13,Coconut Oil,mumbai,metro,497.57,INR,KG,2024-01-01,monsoon,low,economy,False,healthy_fats
+14,Spinach,mumbai,metro,67.42,INR,KG,2024-01-01,monsoon,medium,premium,True,general
+15,Broccoli,mumbai,metro,121.23,INR,KG,2024-01-01,all_year,high,economy,True,general
+16,Bell Pepper,mumbai,metro,144.95,INR,KG,2024-01-01,summer,medium,standard,True,general
+17,Carrot,mumbai,metro,46.25,INR,KG,2024-01-01,monsoon,medium,premium,False,general
+18,Apple,mumbai,metro,251.28,INR,KG,2024-01-01,all_year,high,economy,False,general
+19,Banana,mumbai,metro,52.21,INR,KG,2024-01-01,winter,high,premium,True,general
+20,Orange,mumbai,metro,86.7,INR,KG,2024-01-01,summer,medium,economy,True,general
+21,Berries,mumbai,metro,874.73,INR,KG,2024-01-01,all_year,high,premium,False,general
+22,Greek Yogurt,mumbai,metro,331.04,INR,KG,2024-01-01,all_year,high,economy,True,general
+23,Milk,mumbai,metro,114.27,INR,KG,2024-01-01,monsoon,high,premium,False,general
+24,Cottage Cheese,mumbai,metro,543.6,INR,KG,2024-01-01,winter,medium,standard,False,general
+25,Lentils,mumbai,metro,238.16,INR,KG,2024-01-01,all_year,low,standard,True,general
+26,Chickpeas,mumbai,metro,122.55,INR,KG,2024-01-01,winter,low,economy,True,general
+27,Black Beans,mumbai,metro,264.46,INR,KG,2024-01-01,all_year,medium,premium,False,general
+28,Chicken Breast,delhi,metro,590.74,INR,KG,2024-01-01,summer,low,standard,True,protein
+29,Eggs,delhi,metro,9.13,INR,piece,2024-01-01,all_year,medium,economy,True,protein
+30,Fish,delhi,metro,569.65,INR,KG,2024-01-01,monsoon,high,economy,True,protein
+31,Paneer,delhi,metro,460.96,INR,KG,2024-01-01,all_year,high,economy,False,protein
+32,Tofu,delhi,metro,319.8,INR,KG,2024-01-01,all_year,low,standard,True,general
+33,Brown Rice,delhi,metro,101.52,INR,KG,2024-01-01,monsoon,low,economy,False,carbs
+34,Oats,delhi,metro,220.36,INR,KG,2024-01-01,all_year,low,premium,False,carbs
+35,Quinoa,delhi,metro,978.36,INR,KG,2024-01-01,summer,low,economy,True,carbs
+36,Sweet Potato,delhi,metro,55.45,INR,KG,2024-01-01,summer,low,standard,False,general
+37,Almonds,delhi,metro,1611.41,INR,KG,2024-01-01,summer,medium,premium,True,general
+38,Walnuts,delhi,metro,2305.8,INR,KG,2024-01-01,all_year,high,standard,False,healthy_fats
+39,Olive Oil,delhi,metro,890.36,INR,KG,2024-01-01,monsoon,high,economy,True,healthy_fats
+40,Coconut Oil,delhi,metro,540.56,INR,KG,2024-01-01,all_year,low,standard,False,healthy_fats
+41,Spinach,delhi,metro,64.18,INR,KG,2024-01-01,summer,low,standard,True,general
+42,Broccoli,delhi,metro,96.61,INR,KG,2024-01-01,summer,high,economy,False,general
+43,Bell Pepper,delhi,metro,192.31,INR,KG,2024-01-01,summer,low,standard,False,general
+44,Carrot,delhi,metro,49.67,INR,KG,2024-01-01,all_year,low,economy,True,general
+45,Apple,delhi,metro,162.54,INR,KG,2024-01-01,summer,medium,premium,True,general
+46,Banana,delhi,metro,70.37,INR,KG,2024-01-01,summer,high,premium,False,general
+47,Orange,delhi,metro,127.77,INR,KG,2024-01-01,winter,high,economy,True,general
+48,Berries,delhi,metro,795.17,INR,KG,2024-01-01,winter,low,economy,True,general
+49,Greek Yogurt,delhi,metro,281.32,INR,KG,2024-01-01,summer,low,premium,False,general
+50,Milk,delhi,metro,64.99,INR,KG,2024-01-01,all_year,high,premium,True,general
+51,Cottage Cheese,delhi,metro,462.2,INR,KG,2024-01-01,monsoon,medium,premium,False,general
+52,Lentils,delhi,metro,190.22,INR,KG,2024-01-01,all_year,medium,standard,True,general
+53,Chickpeas,delhi,metro,185.57,INR,KG,2024-01-01,winter,medium,premium,True,general
+54,Black Beans,delhi,metro,227.97,INR,KG,2024-01-01,all_year,low,economy,False,general
+55,Chicken Breast,bangalore,metro,512.0,INR,KG,2024-01-01,all_year,low,premium,False,protein
+56,Eggs,bangalore,metro,7.55,INR,piece,2024-01-01,all_year,high,standard,True,protein
+57,Fish,bangalore,metro,520.6,INR,KG,2024-01-01,all_year,high,economy,True,protein
+58,Paneer,bangalore,metro,508.9,INR,KG,2024-01-01,all_year,low,premium,False,protein
+59,Tofu,bangalore,metro,263.73,INR,KG,2024-01-01,all_year,low,economy,True,general
+60,Brown Rice,bangalore,metro,115.55,INR,KG,2024-01-01,all_year,medium,standard,True,carbs
+61,Oats,bangalore,metro,264.6,INR,KG,2024-01-01,monsoon,low,economy,False,carbs
+62,Quinoa,bangalore,metro,886.75,INR,KG,2024-01-01,winter,medium,premium,False,carbs
+63,Sweet Potato,bangalore,metro,67.5,INR,KG,2024-01-01,winter,low,standard,False,general
+64,Almonds,bangalore,metro,1238.36,INR,KG,2024-01-01,winter,medium,standard,True,general
+65,Walnuts,bangalore,metro,1892.86,INR,KG,2024-01-01,summer,high,standard,True,healthy_fats
+66,Olive Oil,bangalore,metro,1033.5,INR,KG,2024-01-01,winter,medium,standard,True,healthy_fats
+67,Coconut Oil,bangalore,metro,381.11,INR,KG,2024-01-01,monsoon,medium,premium,False,healthy_fats
+68,Spinach,bangalore,metro,47.11,INR,KG,2024-01-01,all_year,medium,premium,True,general
+69,Broccoli,bangalore,metro,126.15,INR,KG,2024-01-01,winter,low,premium,True,general
+70,Bell Pepper,bangalore,metro,161.05,INR,KG,2024-01-01,winter,low,economy,False,general
+71,Carrot,bangalore,metro,43.64,INR,KG,2024-01-01,winter,high,premium,False,general
+72,Apple,bangalore,metro,224.64,INR,KG,2024-01-01,winter,low,standard,False,general
+73,Banana,bangalore,metro,75.54,INR,KG,2024-01-01,summer,low,economy,False,general
+74,Orange,bangalore,metro,75.43,INR,KG,2024-01-01,all_year,high,premium,True,general
+75,Berries,bangalore,metro,680.65,INR,KG,2024-01-01,all_year,low,standard,True,general
+76,Greek Yogurt,bangalore,metro,288.33,INR,KG,2024-01-01,winter,low,standard,False,general
+77,Milk,bangalore,metro,64.19,INR,KG,2024-01-01,summer,low,standard,True,general
+78,Cottage Cheese,bangalore,metro,577.34,INR,KG,2024-01-01,winter,high,standard,False,general
+79,Lentils,bangalore,metro,164.45,INR,KG,2024-01-01,winter,medium,economy,False,general
+80,Chickpeas,bangalore,metro,116.44,INR,KG,2024-01-01,winter,low,premium,False,general
+81,Black Beans,bangalore,metro,193.72,INR,KG,2024-01-01,summer,low,premium,True,general
+82,Chicken Breast,chennai,metro,373.15,INR,KG,2024-01-01,monsoon,medium,standard,True,protein
+83,Eggs,chennai,metro,6.75,INR,piece,2024-01-01,winter,high,premium,True,protein
+84,Fish,chennai,metro,510.68,INR,KG,2024-01-01,winter,medium,premium,True,protein
+85,Paneer,chennai,metro,604.94,INR,KG,2024-01-01,summer,low,standard,False,protein
+86,Tofu,chennai,metro,286.04,INR,KG,2024-01-01,winter,medium,premium,True,general
+87,Brown Rice,chennai,metro,104.11,INR,KG,2024-01-01,summer,low,standard,False,carbs
+88,Oats,chennai,metro,159.97,INR,KG,2024-01-01,winter,high,standard,False,carbs
+89,Quinoa,chennai,metro,572.27,INR,KG,2024-01-01,monsoon,low,economy,True,carbs
+90,Sweet Potato,chennai,metro,55.29,INR,KG,2024-01-01,monsoon,high,economy,False,general
+91,Almonds,chennai,metro,1247.23,INR,KG,2024-01-01,monsoon,high,economy,True,general
+92,Walnuts,chennai,metro,1200.01,INR,KG,2024-01-01,monsoon,high,premium,False,healthy_fats
+93,Olive Oil,chennai,metro,955.56,INR,KG,2024-01-01,all_year,low,premium,True,healthy_fats
+94,Coconut Oil,chennai,metro,417.52,INR,KG,2024-01-01,winter,high,premium,False,healthy_fats
+95,Spinach,chennai,metro,73.23,INR,KG,2024-01-01,monsoon,high,standard,True,general
+96,Broccoli,chennai,metro,88.4,INR,KG,2024-01-01,monsoon,low,economy,False,general
+97,Bell Pepper,chennai,metro,173.01,INR,KG,2024-01-01,monsoon,medium,premium,True,general
+98,Carrot,chennai,metro,41.25,INR,KG,2024-01-01,monsoon,medium,economy,False,general
+99,Apple,chennai,metro,211.38,INR,KG,2024-01-01,monsoon,low,standard,True,general
+100,Banana,chennai,metro,51.78,INR,KG,2024-01-01,monsoon,low,standard,True,general
+101,Orange,chennai,metro,71.56,INR,KG,2024-01-01,winter,low,standard,True,general
+102,Berries,chennai,metro,592.84,INR,KG,2024-01-01,winter,high,premium,True,general
+103,Greek Yogurt,chennai,metro,226.05,INR,KG,2024-01-01,monsoon,medium,standard,True,general
+104,Milk,chennai,metro,87.25,INR,KG,2024-01-01,monsoon,medium,premium,True,general
+105,Cottage Cheese,chennai,metro,456.4,INR,KG,2024-01-01,summer,medium,premium,True,general
+106,Lentils,chennai,metro,109.15,INR,KG,2024-01-01,summer,high,economy,False,general
+107,Chickpeas,chennai,metro,139.86,INR,KG,2024-01-01,monsoon,high,economy,True,general
+108,Black Beans,chennai,metro,178.73,INR,KG,2024-01-01,winter,high,premium,True,general
+109,Chicken Breast,kolkata,metro,525.19,INR,KG,2024-01-01,monsoon,medium,economy,True,protein
+110,Eggs,kolkata,metro,9.45,INR,piece,2024-01-01,summer,low,economy,False,protein
+111,Fish,kolkata,metro,312.97,INR,KG,2024-01-01,summer,high,premium,False,protein
+112,Paneer,kolkata,metro,561.44,INR,KG,2024-01-01,summer,high,premium,False,protein
+113,Tofu,kolkata,metro,246.0,INR,KG,2024-01-01,winter,low,premium,True,general
+114,Brown Rice,kolkata,metro,131.12,INR,KG,2024-01-01,all_year,low,premium,True,carbs
+115,Oats,kolkata,metro,239.85,INR,KG,2024-01-01,all_year,medium,economy,True,carbs
+116,Quinoa,kolkata,metro,753.61,INR,KG,2024-01-01,winter,medium,standard,True,carbs
+117,Sweet Potato,kolkata,metro,55.44,INR,KG,2024-01-01,winter,low,standard,True,general
+118,Almonds,kolkata,metro,1109.7,INR,KG,2024-01-01,winter,low,economy,False,general
+119,Walnuts,kolkata,metro,1144.27,INR,KG,2024-01-01,summer,medium,standard,True,healthy_fats
+120,Olive Oil,kolkata,metro,884.62,INR,KG,2024-01-01,summer,medium,premium,False,healthy_fats
+121,Coconut Oil,kolkata,metro,360.05,INR,KG,2024-01-01,monsoon,medium,standard,False,healthy_fats
+122,Spinach,kolkata,metro,41.51,INR,KG,2024-01-01,summer,medium,standard,False,general
+123,Broccoli,kolkata,metro,93.68,INR,KG,2024-01-01,monsoon,low,economy,True,general
+124,Bell Pepper,kolkata,metro,154.88,INR,KG,2024-01-01,all_year,medium,economy,True,general
+125,Carrot,kolkata,metro,28.18,INR,KG,2024-01-01,monsoon,high,standard,True,general
+126,Apple,kolkata,metro,155.32,INR,KG,2024-01-01,all_year,medium,standard,False,general
+127,Banana,kolkata,metro,45.15,INR,KG,2024-01-01,monsoon,low,economy,True,general
+128,Orange,kolkata,metro,58.79,INR,KG,2024-01-01,winter,medium,economy,False,general
+129,Berries,kolkata,metro,440.92,INR,KG,2024-01-01,summer,high,premium,True,general
+130,Greek Yogurt,kolkata,metro,219.25,INR,KG,2024-01-01,summer,high,standard,False,general
+131,Milk,kolkata,metro,57.26,INR,KG,2024-01-01,all_year,medium,premium,True,general
+132,Cottage Cheese,kolkata,metro,452.01,INR,KG,2024-01-01,winter,low,standard,True,general
+133,Lentils,kolkata,metro,116.98,INR,KG,2024-01-01,winter,low,premium,True,general
+134,Chickpeas,kolkata,metro,106.23,INR,KG,2024-01-01,monsoon,medium,standard,False,general
+135,Black Beans,kolkata,metro,192.79,INR,KG,2024-01-01,monsoon,high,economy,False,general
+136,Chicken Breast,hyderabad,metro,540.52,INR,KG,2024-01-01,summer,low,premium,True,protein
+137,Eggs,hyderabad,metro,11.36,INR,piece,2024-01-01,winter,low,premium,True,protein
+138,Fish,hyderabad,metro,451.23,INR,KG,2024-01-01,all_year,high,premium,False,protein
+139,Paneer,hyderabad,metro,588.96,INR,KG,2024-01-01,monsoon,medium,premium,True,protein
+140,Tofu,hyderabad,metro,335.08,INR,KG,2024-01-01,monsoon,high,standard,True,general
+141,Brown Rice,hyderabad,metro,141.88,INR,KG,2024-01-01,monsoon,medium,economy,False,carbs
+142,Oats,hyderabad,metro,218.07,INR,KG,2024-01-01,winter,low,standard,False,carbs
+143,Quinoa,hyderabad,metro,651.92,INR,KG,2024-01-01,summer,high,standard,False,carbs
+144,Sweet Potato,hyderabad,metro,72.46,INR,KG,2024-01-01,summer,high,premium,True,general
+145,Almonds,hyderabad,metro,1301.34,INR,KG,2024-01-01,all_year,high,standard,True,general
+146,Walnuts,hyderabad,metro,1071.32,INR,KG,2024-01-01,winter,low,economy,False,healthy_fats
+147,Olive Oil,hyderabad,metro,1065.68,INR,KG,2024-01-01,monsoon,medium,premium,True,healthy_fats
+148,Coconut Oil,hyderabad,metro,391.84,INR,KG,2024-01-01,monsoon,low,standard,False,healthy_fats
+149,Spinach,hyderabad,metro,43.67,INR,KG,2024-01-01,monsoon,medium,standard,True,general
+150,Broccoli,hyderabad,metro,79.54,INR,KG,2024-01-01,summer,medium,premium,False,general
+151,Bell Pepper,hyderabad,metro,175.67,INR,KG,2024-01-01,monsoon,medium,premium,True,general
+152,Carrot,hyderabad,metro,30.06,INR,KG,2024-01-01,all_year,low,premium,True,general
+153,Apple,hyderabad,metro,142.43,INR,KG,2024-01-01,all_year,high,standard,False,general
+154,Banana,hyderabad,metro,66.79,INR,KG,2024-01-01,all_year,low,premium,True,general
+155,Orange,hyderabad,metro,62.58,INR,KG,2024-01-01,all_year,medium,premium,True,general
+156,Berries,hyderabad,metro,603.21,INR,KG,2024-01-01,monsoon,low,economy,False,general
+157,Greek Yogurt,hyderabad,metro,331.23,INR,KG,2024-01-01,summer,low,standard,False,general
+158,Milk,hyderabad,metro,68.67,INR,KG,2024-01-01,all_year,medium,premium,True,general
+159,Cottage Cheese,hyderabad,metro,361.44,INR,KG,2024-01-01,all_year,low,standard,False,general
+160,Lentils,hyderabad,metro,152.47,INR,KG,2024-01-01,winter,low,premium,True,general
+161,Chickpeas,hyderabad,metro,123.82,INR,KG,2024-01-01,winter,high,premium,False,general
+162,Black Beans,hyderabad,metro,191.41,INR,KG,2024-01-01,summer,low,economy,False,general
+163,Chicken Breast,pune,metro,425.02,INR,KG,2024-01-01,winter,high,economy,True,protein
+164,Eggs,pune,metro,10.6,INR,piece,2024-01-01,all_year,medium,premium,True,protein
+165,Fish,pune,metro,493.44,INR,KG,2024-01-01,winter,medium,standard,False,protein
+166,Paneer,pune,metro,601.89,INR,KG,2024-01-01,summer,high,premium,False,protein
+167,Tofu,pune,metro,346.35,INR,KG,2024-01-01,winter,medium,economy,True,general
+168,Brown Rice,pune,metro,164.69,INR,KG,2024-01-01,all_year,low,standard,True,carbs
+169,Oats,pune,metro,199.1,INR,KG,2024-01-01,winter,medium,economy,False,carbs
+170,Quinoa,pune,metro,766.4,INR,KG,2024-01-01,winter,low,economy,True,carbs
+171,Sweet Potato,pune,metro,68.51,INR,KG,2024-01-01,all_year,medium,standard,True,general
+172,Almonds,pune,metro,1314.94,INR,KG,2024-01-01,monsoon,medium,premium,False,general
+173,Walnuts,pune,metro,1386.44,INR,KG,2024-01-01,winter,low,standard,False,healthy_fats
+174,Olive Oil,pune,metro,984.11,INR,KG,2024-01-01,monsoon,high,premium,False,healthy_fats
+175,Coconut Oil,pune,metro,517.21,INR,KG,2024-01-01,winter,low,standard,False,healthy_fats
+176,Spinach,pune,metro,53.51,INR,KG,2024-01-01,summer,high,economy,True,general
+177,Broccoli,pune,metro,98.35,INR,KG,2024-01-01,summer,high,standard,False,general
+178,Bell Pepper,pune,metro,173.7,INR,KG,2024-01-01,monsoon,low,premium,False,general
+179,Carrot,pune,metro,41.69,INR,KG,2024-01-01,all_year,medium,standard,False,general
+180,Apple,pune,metro,230.84,INR,KG,2024-01-01,monsoon,high,premium,True,general
+181,Banana,pune,metro,65.88,INR,KG,2024-01-01,monsoon,high,standard,False,general
+182,Orange,pune,metro,85.05,INR,KG,2024-01-01,monsoon,medium,economy,True,general
+183,Berries,pune,metro,689.67,INR,KG,2024-01-01,monsoon,medium,standard,False,general
+184,Greek Yogurt,pune,metro,367.07,INR,KG,2024-01-01,winter,low,premium,False,general
+185,Milk,pune,metro,106.38,INR,KG,2024-01-01,all_year,low,premium,False,general
+186,Cottage Cheese,pune,metro,536.27,INR,KG,2024-01-01,summer,medium,economy,True,general
+187,Lentils,pune,metro,187.54,INR,KG,2024-01-01,summer,medium,premium,True,general
+188,Chickpeas,pune,metro,96.27,INR,KG,2024-01-01,summer,low,premium,False,general
+189,Black Beans,pune,metro,226.23,INR,KG,2024-01-01,all_year,medium,premium,True,general
+190,Chicken Breast,ahmedabad,metro,372.45,INR,KG,2024-01-01,winter,high,premium,True,protein
+191,Eggs,ahmedabad,metro,7.66,INR,piece,2024-01-01,winter,medium,premium,False,protein
+192,Fish,ahmedabad,metro,382.27,INR,KG,2024-01-01,all_year,high,standard,True,protein
+193,Paneer,ahmedabad,metro,500.39,INR,KG,2024-01-01,winter,low,standard,True,protein
+194,Tofu,ahmedabad,metro,287.2,INR,KG,2024-01-01,all_year,high,standard,False,general
+195,Brown Rice,ahmedabad,metro,93.49,INR,KG,2024-01-01,all_year,low,premium,True,carbs
+196,Oats,ahmedabad,metro,242.17,INR,KG,2024-01-01,monsoon,high,economy,False,carbs
+197,Quinoa,ahmedabad,metro,485.33,INR,KG,2024-01-01,all_year,low,economy,True,carbs
+198,Sweet Potato,ahmedabad,metro,70.72,INR,KG,2024-01-01,winter,low,economy,False,general
+199,Almonds,ahmedabad,metro,1013.49,INR,KG,2024-01-01,winter,low,economy,False,general
+200,Walnuts,ahmedabad,metro,1758.45,INR,KG,2024-01-01,monsoon,low,economy,True,healthy_fats
+201,Olive Oil,ahmedabad,metro,871.37,INR,KG,2024-01-01,all_year,high,standard,True,healthy_fats
+202,Coconut Oil,ahmedabad,metro,428.88,INR,KG,2024-01-01,summer,low,standard,False,healthy_fats
+203,Spinach,ahmedabad,metro,41.19,INR,KG,2024-01-01,all_year,medium,economy,True,general
+204,Broccoli,ahmedabad,metro,73.61,INR,KG,2024-01-01,monsoon,medium,economy,False,general
+205,Bell Pepper,ahmedabad,metro,155.8,INR,KG,2024-01-01,summer,medium,economy,False,general
+206,Carrot,ahmedabad,metro,48.35,INR,KG,2024-01-01,monsoon,medium,economy,False,general
+207,Apple,ahmedabad,metro,182.35,INR,KG,2024-01-01,all_year,high,premium,True,general
+208,Banana,ahmedabad,metro,48.9,INR,KG,2024-01-01,winter,high,standard,False,general
+209,Orange,ahmedabad,metro,94.04,INR,KG,2024-01-01,summer,high,premium,True,general
+210,Berries,ahmedabad,metro,541.17,INR,KG,2024-01-01,winter,high,economy,True,general
+211,Greek Yogurt,ahmedabad,metro,230.49,INR,KG,2024-01-01,monsoon,medium,standard,True,general
+212,Milk,ahmedabad,metro,78.97,INR,KG,2024-01-01,winter,medium,premium,False,general
+213,Cottage Cheese,ahmedabad,metro,466.24,INR,KG,2024-01-01,all_year,high,premium,False,general
+214,Lentils,ahmedabad,metro,170.92,INR,KG,2024-01-01,all_year,high,premium,False,general
+215,Chickpeas,ahmedabad,metro,73.49,INR,KG,2024-01-01,all_year,low,standard,True,general
+216,Black Beans,ahmedabad,metro,162.43,INR,KG,2024-01-01,summer,medium,economy,True,general
+217,Chicken Breast,maharashtra,state,433.81,INR,KG,2024-01-01,winter,medium,standard,True,protein
+218,Eggs,maharashtra,state,6.7,INR,piece,2024-01-01,summer,medium,economy,False,protein
+219,Fish,maharashtra,state,322.96,INR,KG,2024-01-01,all_year,medium,premium,True,protein
+220,Paneer,maharashtra,state,408.31,INR,KG,2024-01-01,winter,medium,premium,False,protein
+221,Tofu,maharashtra,state,241.88,INR,KG,2024-01-01,monsoon,high,economy,False,general
+222,Brown Rice,maharashtra,state,90.35,INR,KG,2024-01-01,winter,low,premium,False,carbs
+223,Oats,maharashtra,state,168.54,INR,KG,2024-01-01,winter,high,economy,False,carbs
+224,Quinoa,maharashtra,state,558.57,INR,KG,2024-01-01,all_year,high,standard,True,carbs
+225,Sweet Potato,maharashtra,state,49.6,INR,KG,2024-01-01,monsoon,low,premium,True,general
+226,Almonds,maharashtra,state,1000.79,INR,KG,2024-01-01,all_year,medium,economy,True,general
+227,Walnuts,maharashtra,state,1102.14,INR,KG,2024-01-01,monsoon,medium,premium,False,healthy_fats
+228,Olive Oil,maharashtra,state,536.63,INR,KG,2024-01-01,all_year,medium,premium,False,healthy_fats
+229,Coconut Oil,maharashtra,state,410.76,INR,KG,2024-01-01,summer,high,premium,False,healthy_fats
+230,Spinach,maharashtra,state,49.57,INR,KG,2024-01-01,summer,low,premium,True,general
+231,Broccoli,maharashtra,state,79.53,INR,KG,2024-01-01,monsoon,low,standard,False,general
+232,Bell Pepper,maharashtra,state,102.95,INR,KG,2024-01-01,all_year,high,premium,False,general
+233,Carrot,maharashtra,state,41.02,INR,KG,2024-01-01,winter,medium,standard,False,general
+234,Apple,maharashtra,state,123.59,INR,KG,2024-01-01,winter,medium,premium,True,general
+235,Banana,maharashtra,state,47.92,INR,KG,2024-01-01,summer,low,premium,False,general
+236,Orange,maharashtra,state,84.0,INR,KG,2024-01-01,all_year,medium,premium,False,general
+237,Berries,maharashtra,state,468.42,INR,KG,2024-01-01,winter,medium,standard,True,general
+238,Greek Yogurt,maharashtra,state,192.39,INR,KG,2024-01-01,winter,low,premium,False,general
+239,Milk,maharashtra,state,56.75,INR,KG,2024-01-01,all_year,medium,standard,False,general
+240,Cottage Cheese,maharashtra,state,385.33,INR,KG,2024-01-01,summer,high,standard,True,general
+241,Lentils,maharashtra,state,108.53,INR,KG,2024-01-01,winter,medium,premium,False,general
+242,Chickpeas,maharashtra,state,88.81,INR,KG,2024-01-01,all_year,low,premium,True,general
+243,Black Beans,maharashtra,state,145.24,INR,KG,2024-01-01,all_year,medium,economy,False,general
+244,Chicken Breast,gujarat,state,397.46,INR,KG,2024-01-01,all_year,low,premium,True,protein
+245,Eggs,gujarat,state,4.42,INR,piece,2024-01-01,all_year,high,standard,True,protein
+246,Fish,gujarat,state,323.99,INR,KG,2024-01-01,winter,high,standard,False,protein
+247,Paneer,gujarat,state,410.12,INR,KG,2024-01-01,all_year,low,premium,True,protein
+248,Tofu,gujarat,state,191.06,INR,KG,2024-01-01,winter,high,premium,True,general
+249,Brown Rice,gujarat,state,74.47,INR,KG,2024-01-01,monsoon,low,standard,True,carbs
+250,Oats,gujarat,state,167.29,INR,KG,2024-01-01,monsoon,medium,premium,True,carbs
+251,Quinoa,gujarat,state,434.92,INR,KG,2024-01-01,monsoon,high,standard,True,carbs
+252,Sweet Potato,gujarat,state,50.21,INR,KG,2024-01-01,summer,medium,standard,True,general
+253,Almonds,gujarat,state,843.78,INR,KG,2024-01-01,monsoon,high,premium,False,general
+254,Walnuts,gujarat,state,1211.78,INR,KG,2024-01-01,all_year,medium,premium,False,healthy_fats
+255,Olive Oil,gujarat,state,707.28,INR,KG,2024-01-01,summer,low,economy,False,healthy_fats
+256,Coconut Oil,gujarat,state,345.11,INR,KG,2024-01-01,winter,medium,standard,False,healthy_fats
+257,Spinach,gujarat,state,48.6,INR,KG,2024-01-01,monsoon,high,economy,False,general
+258,Broccoli,gujarat,state,73.71,INR,KG,2024-01-01,monsoon,low,premium,True,general
+259,Bell Pepper,gujarat,state,84.12,INR,KG,2024-01-01,summer,high,standard,False,general
+260,Carrot,gujarat,state,29.95,INR,KG,2024-01-01,summer,high,economy,False,general
+261,Apple,gujarat,state,145.56,INR,KG,2024-01-01,monsoon,medium,standard,True,general
+262,Banana,gujarat,state,40.74,INR,KG,2024-01-01,all_year,medium,standard,False,general
+263,Orange,gujarat,state,71.41,INR,KG,2024-01-01,winter,medium,premium,False,general
+264,Berries,gujarat,state,293.0,INR,KG,2024-01-01,summer,medium,economy,False,general
+265,Greek Yogurt,gujarat,state,177.7,INR,KG,2024-01-01,all_year,low,economy,False,general
+266,Milk,gujarat,state,66.39,INR,KG,2024-01-01,summer,high,economy,False,general
+267,Cottage Cheese,gujarat,state,270.06,INR,KG,2024-01-01,all_year,low,premium,True,general
+268,Lentils,gujarat,state,110.41,INR,KG,2024-01-01,winter,medium,economy,True,general
+269,Chickpeas,gujarat,state,81.86,INR,KG,2024-01-01,winter,medium,economy,False,general
+270,Black Beans,gujarat,state,89.35,INR,KG,2024-01-01,monsoon,low,standard,True,general
+271,Chicken Breast,rajasthan,state,277.46,INR,KG,2024-01-01,monsoon,high,premium,True,protein
+272,Eggs,rajasthan,state,4.86,INR,piece,2024-01-01,all_year,low,premium,True,protein
+273,Fish,rajasthan,state,211.0,INR,KG,2024-01-01,summer,medium,economy,True,protein
+274,Paneer,rajasthan,state,294.7,INR,KG,2024-01-01,winter,medium,premium,False,protein
+275,Tofu,rajasthan,state,207.62,INR,KG,2024-01-01,all_year,high,standard,False,general
+276,Brown Rice,rajasthan,state,62.84,INR,KG,2024-01-01,monsoon,medium,standard,False,carbs
+277,Oats,rajasthan,state,104.84,INR,KG,2024-01-01,summer,high,standard,True,carbs
+278,Quinoa,rajasthan,state,377.42,INR,KG,2024-01-01,winter,medium,premium,True,carbs
+279,Sweet Potato,rajasthan,state,38.02,INR,KG,2024-01-01,all_year,medium,economy,True,general
+280,Almonds,rajasthan,state,859.49,INR,KG,2024-01-01,winter,medium,standard,True,general
+281,Walnuts,rajasthan,state,866.75,INR,KG,2024-01-01,summer,medium,standard,True,healthy_fats
+282,Olive Oil,rajasthan,state,499.24,INR,KG,2024-01-01,monsoon,medium,premium,False,healthy_fats
+283,Coconut Oil,rajasthan,state,328.29,INR,KG,2024-01-01,summer,low,economy,False,healthy_fats
+284,Spinach,rajasthan,state,36.75,INR,KG,2024-01-01,monsoon,medium,economy,False,general
+285,Broccoli,rajasthan,state,76.13,INR,KG,2024-01-01,all_year,low,premium,True,general
+286,Bell Pepper,rajasthan,state,80.38,INR,KG,2024-01-01,all_year,high,economy,False,general
+287,Carrot,rajasthan,state,23.58,INR,KG,2024-01-01,summer,high,standard,True,general
+288,Apple,rajasthan,state,92.33,INR,KG,2024-01-01,monsoon,high,premium,True,general
+289,Banana,rajasthan,state,40.8,INR,KG,2024-01-01,summer,medium,premium,False,general
+290,Orange,rajasthan,state,46.84,INR,KG,2024-01-01,monsoon,low,premium,True,general
+291,Berries,rajasthan,state,439.35,INR,KG,2024-01-01,all_year,high,premium,True,general
+292,Greek Yogurt,rajasthan,state,153.12,INR,KG,2024-01-01,summer,low,economy,True,general
+293,Milk,rajasthan,state,49.43,INR,KG,2024-01-01,monsoon,low,standard,True,general
+294,Cottage Cheese,rajasthan,state,194.22,INR,KG,2024-01-01,summer,low,economy,False,general
+295,Lentils,rajasthan,state,109.86,INR,KG,2024-01-01,all_year,medium,economy,True,general
+296,Chickpeas,rajasthan,state,80.87,INR,KG,2024-01-01,summer,high,premium,False,general
+297,Black Beans,rajasthan,state,124.88,INR,KG,2024-01-01,winter,high,economy,True,general
+298,Chicken Breast,punjab,state,318.27,INR,KG,2024-01-01,monsoon,high,premium,True,protein
+299,Eggs,punjab,state,6.05,INR,piece,2024-01-01,winter,medium,premium,False,protein
+300,Fish,punjab,state,322.47,INR,KG,2024-01-01,all_year,high,economy,False,protein
+301,Paneer,punjab,state,429.48,INR,KG,2024-01-01,monsoon,medium,economy,False,protein
+302,Tofu,punjab,state,150.25,INR,KG,2024-01-01,winter,high,standard,False,general
+303,Brown Rice,punjab,state,78.22,INR,KG,2024-01-01,monsoon,low,standard,True,carbs
+304,Oats,punjab,state,118.72,INR,KG,2024-01-01,monsoon,high,premium,False,carbs
+305,Quinoa,punjab,state,493.95,INR,KG,2024-01-01,summer,low,standard,True,carbs
+306,Sweet Potato,punjab,state,40.2,INR,KG,2024-01-01,winter,medium,economy,True,general
+307,Almonds,punjab,state,979.86,INR,KG,2024-01-01,all_year,high,premium,True,general
+308,Walnuts,punjab,state,928.59,INR,KG,2024-01-01,summer,low,standard,True,healthy_fats
+309,Olive Oil,punjab,state,554.74,INR,KG,2024-01-01,all_year,low,standard,True,healthy_fats
+310,Coconut Oil,punjab,state,241.05,INR,KG,2024-01-01,summer,medium,standard,False,healthy_fats
+311,Spinach,punjab,state,31.1,INR,KG,2024-01-01,summer,medium,economy,False,general
+312,Broccoli,punjab,state,100.29,INR,KG,2024-01-01,all_year,medium,economy,False,general
+313,Bell Pepper,punjab,state,77.4,INR,KG,2024-01-01,winter,high,standard,False,general
+314,Carrot,punjab,state,30.51,INR,KG,2024-01-01,monsoon,low,premium,True,general
+315,Apple,punjab,state,105.02,INR,KG,2024-01-01,all_year,medium,premium,False,general
+316,Banana,punjab,state,42.51,INR,KG,2024-01-01,all_year,medium,premium,False,general
+317,Orange,punjab,state,54.72,INR,KG,2024-01-01,monsoon,high,economy,False,general
+318,Berries,punjab,state,454.26,INR,KG,2024-01-01,monsoon,high,standard,True,general
+319,Greek Yogurt,punjab,state,236.16,INR,KG,2024-01-01,all_year,low,economy,True,general
+320,Milk,punjab,state,40.64,INR,KG,2024-01-01,winter,medium,standard,True,general
+321,Cottage Cheese,punjab,state,291.64,INR,KG,2024-01-01,all_year,high,premium,True,general
+322,Lentils,punjab,state,106.21,INR,KG,2024-01-01,all_year,low,economy,False,general
+323,Chickpeas,punjab,state,81.2,INR,KG,2024-01-01,winter,low,standard,True,general
+324,Black Beans,punjab,state,133.02,INR,KG,2024-01-01,monsoon,medium,economy,False,general
+325,Chicken Breast,haryana,state,272.55,INR,KG,2024-01-01,summer,medium,premium,False,protein
+326,Eggs,haryana,state,5.62,INR,piece,2024-01-01,summer,low,standard,False,protein
+327,Fish,haryana,state,357.86,INR,KG,2024-01-01,summer,low,economy,True,protein
+328,Paneer,haryana,state,404.69,INR,KG,2024-01-01,summer,high,standard,True,protein
+329,Tofu,haryana,state,186.88,INR,KG,2024-01-01,summer,low,standard,True,general
+330,Brown Rice,haryana,state,69.36,INR,KG,2024-01-01,all_year,medium,economy,False,carbs
+331,Oats,haryana,state,166.63,INR,KG,2024-01-01,monsoon,low,premium,True,carbs
+332,Quinoa,haryana,state,384.68,INR,KG,2024-01-01,summer,medium,economy,False,carbs
+333,Sweet Potato,haryana,state,44.01,INR,KG,2024-01-01,all_year,high,premium,False,general
+334,Almonds,haryana,state,740.9,INR,KG,2024-01-01,winter,low,premium,True,general
+335,Walnuts,haryana,state,848.54,INR,KG,2024-01-01,monsoon,low,premium,False,healthy_fats
+336,Olive Oil,haryana,state,440.76,INR,KG,2024-01-01,monsoon,high,premium,True,healthy_fats
+337,Coconut Oil,haryana,state,373.77,INR,KG,2024-01-01,all_year,high,standard,True,healthy_fats
+338,Spinach,haryana,state,48.14,INR,KG,2024-01-01,all_year,low,economy,True,general
+339,Broccoli,haryana,state,90.15,INR,KG,2024-01-01,summer,low,economy,False,general
+340,Bell Pepper,haryana,state,75.02,INR,KG,2024-01-01,monsoon,low,economy,False,general
+341,Carrot,haryana,state,35.7,INR,KG,2024-01-01,all_year,low,premium,True,general
+342,Apple,haryana,state,92.82,INR,KG,2024-01-01,all_year,low,standard,False,general
+343,Banana,haryana,state,34.71,INR,KG,2024-01-01,all_year,low,standard,False,general
+344,Orange,haryana,state,52.81,INR,KG,2024-01-01,all_year,high,economy,True,general
+345,Berries,haryana,state,412.05,INR,KG,2024-01-01,monsoon,low,economy,True,general
+346,Greek Yogurt,haryana,state,196.65,INR,KG,2024-01-01,all_year,high,economy,True,general
+347,Milk,haryana,state,65.95,INR,KG,2024-01-01,monsoon,high,economy,True,general
+348,Cottage Cheese,haryana,state,258.73,INR,KG,2024-01-01,monsoon,high,standard,True,general
+349,Lentils,haryana,state,116.93,INR,KG,2024-01-01,winter,low,premium,False,general
+350,Chickpeas,haryana,state,96.37,INR,KG,2024-01-01,monsoon,high,standard,True,general
+351,Black Beans,haryana,state,137.05,INR,KG,2024-01-01,winter,low,premium,True,general
+352,Chicken Breast,uttar_pradesh,state,250.41,INR,KG,2024-01-01,summer,high,premium,True,protein
+353,Eggs,uttar_pradesh,state,4.34,INR,piece,2024-01-01,all_year,high,economy,True,protein
+354,Fish,uttar_pradesh,state,241.44,INR,KG,2024-01-01,all_year,medium,standard,True,protein
+355,Paneer,uttar_pradesh,state,231.7,INR,KG,2024-01-01,winter,high,standard,True,protein
+356,Tofu,uttar_pradesh,state,160.64,INR,KG,2024-01-01,summer,medium,standard,False,general
+357,Brown Rice,uttar_pradesh,state,71.78,INR,KG,2024-01-01,summer,medium,standard,False,carbs
+358,Oats,uttar_pradesh,state,120.36,INR,KG,2024-01-01,summer,medium,premium,True,carbs
+359,Quinoa,uttar_pradesh,state,362.03,INR,KG,2024-01-01,all_year,medium,standard,True,carbs
+360,Sweet Potato,uttar_pradesh,state,27.97,INR,KG,2024-01-01,all_year,medium,economy,True,general
+361,Almonds,uttar_pradesh,state,709.12,INR,KG,2024-01-01,all_year,high,premium,True,general
+362,Walnuts,uttar_pradesh,state,667.78,INR,KG,2024-01-01,winter,low,economy,False,healthy_fats
+363,Olive Oil,uttar_pradesh,state,568.84,INR,KG,2024-01-01,winter,high,economy,False,healthy_fats
+364,Coconut Oil,uttar_pradesh,state,204.92,INR,KG,2024-01-01,winter,high,premium,True,healthy_fats
+365,Spinach,uttar_pradesh,state,32.75,INR,KG,2024-01-01,summer,low,economy,False,general
+366,Broccoli,uttar_pradesh,state,57.13,INR,KG,2024-01-01,winter,medium,economy,True,general
+367,Bell Pepper,uttar_pradesh,state,75.84,INR,KG,2024-01-01,winter,low,standard,False,general
+368,Carrot,uttar_pradesh,state,19.59,INR,KG,2024-01-01,monsoon,high,economy,True,general
+369,Apple,uttar_pradesh,state,111.34,INR,KG,2024-01-01,winter,high,premium,False,general
+370,Banana,uttar_pradesh,state,32.28,INR,KG,2024-01-01,summer,low,premium,False,general
+371,Orange,uttar_pradesh,state,38.04,INR,KG,2024-01-01,monsoon,medium,standard,False,general
+372,Berries,uttar_pradesh,state,261.12,INR,KG,2024-01-01,winter,low,premium,True,general
+373,Greek Yogurt,uttar_pradesh,state,123.0,INR,KG,2024-01-01,monsoon,low,premium,True,general
+374,Milk,uttar_pradesh,state,34.52,INR,KG,2024-01-01,summer,low,premium,True,general
+375,Cottage Cheese,uttar_pradesh,state,182.19,INR,KG,2024-01-01,monsoon,low,standard,False,general
+376,Lentils,uttar_pradesh,state,88.17,INR,KG,2024-01-01,all_year,high,standard,False,general
+377,Chickpeas,uttar_pradesh,state,62.28,INR,KG,2024-01-01,monsoon,low,economy,True,general
+378,Black Beans,uttar_pradesh,state,76.64,INR,KG,2024-01-01,all_year,high,standard,True,general
+379,Chicken Breast,bihar,state,287.85,INR,KG,2024-01-01,all_year,low,standard,True,protein
+380,Eggs,bihar,state,3.59,INR,piece,2024-01-01,winter,low,standard,False,protein
+381,Fish,bihar,state,198.08,INR,KG,2024-01-01,summer,low,premium,True,protein
+382,Paneer,bihar,state,227.36,INR,KG,2024-01-01,winter,low,economy,False,protein
+383,Tofu,bihar,state,154.01,INR,KG,2024-01-01,monsoon,low,premium,True,general
+384,Brown Rice,bihar,state,39.7,INR,KG,2024-01-01,summer,high,standard,False,carbs
+385,Oats,bihar,state,122.01,INR,KG,2024-01-01,all_year,low,economy,True,carbs
+386,Quinoa,bihar,state,244.07,INR,KG,2024-01-01,monsoon,high,economy,False,carbs
+387,Sweet Potato,bihar,state,24.72,INR,KG,2024-01-01,all_year,low,standard,True,general
+388,Almonds,bihar,state,647.67,INR,KG,2024-01-01,summer,low,standard,True,general
+389,Walnuts,bihar,state,632.15,INR,KG,2024-01-01,summer,low,premium,True,healthy_fats
+390,Olive Oil,bihar,state,396.12,INR,KG,2024-01-01,all_year,low,standard,False,healthy_fats
+391,Coconut Oil,bihar,state,154.56,INR,KG,2024-01-01,monsoon,medium,premium,False,healthy_fats
+392,Spinach,bihar,state,28.79,INR,KG,2024-01-01,winter,high,premium,False,general
+393,Broccoli,bihar,state,43.44,INR,KG,2024-01-01,monsoon,high,economy,False,general
+394,Bell Pepper,bihar,state,49.47,INR,KG,2024-01-01,summer,high,premium,True,general
+395,Carrot,bihar,state,17.36,INR,KG,2024-01-01,summer,low,economy,True,general
+396,Apple,bihar,state,62.22,INR,KG,2024-01-01,winter,medium,standard,True,general
+397,Banana,bihar,state,21.35,INR,KG,2024-01-01,all_year,high,premium,True,general
+398,Orange,bihar,state,43.5,INR,KG,2024-01-01,all_year,low,standard,True,general
+399,Berries,bihar,state,267.14,INR,KG,2024-01-01,summer,medium,economy,False,general
+400,Greek Yogurt,bihar,state,155.42,INR,KG,2024-01-01,all_year,medium,premium,True,general
+401,Milk,bihar,state,37.31,INR,KG,2024-01-01,all_year,low,economy,True,general
+402,Cottage Cheese,bihar,state,182.77,INR,KG,2024-01-01,all_year,low,economy,False,general
+403,Lentils,bihar,state,76.91,INR,KG,2024-01-01,all_year,high,economy,True,general
+404,Chickpeas,bihar,state,55.85,INR,KG,2024-01-01,monsoon,high,standard,False,general
+405,Black Beans,bihar,state,67.6,INR,KG,2024-01-01,winter,high,economy,False,general
+406,Chicken Breast,west_bengal,state,264.8,INR,KG,2024-01-01,summer,medium,standard,True,protein
+407,Eggs,west_bengal,state,4.46,INR,piece,2024-01-01,all_year,low,premium,True,protein
+408,Fish,west_bengal,state,188.11,INR,KG,2024-01-01,all_year,low,premium,False,protein
+409,Paneer,west_bengal,state,260.29,INR,KG,2024-01-01,monsoon,medium,standard,True,protein
+410,Tofu,west_bengal,state,133.73,INR,KG,2024-01-01,all_year,medium,standard,False,general
+411,Brown Rice,west_bengal,state,68.92,INR,KG,2024-01-01,monsoon,high,premium,True,carbs
+412,Oats,west_bengal,state,105.7,INR,KG,2024-01-01,winter,high,economy,False,carbs
+413,Quinoa,west_bengal,state,334.42,INR,KG,2024-01-01,all_year,low,premium,False,carbs
+414,Sweet Potato,west_bengal,state,35.19,INR,KG,2024-01-01,monsoon,high,economy,True,general
+415,Almonds,west_bengal,state,512.54,INR,KG,2024-01-01,all_year,low,standard,True,general
+416,Walnuts,west_bengal,state,915.74,INR,KG,2024-01-01,monsoon,low,economy,True,healthy_fats
+417,Olive Oil,west_bengal,state,576.52,INR,KG,2024-01-01,all_year,medium,economy,True,healthy_fats
+418,Coconut Oil,west_bengal,state,227.2,INR,KG,2024-01-01,winter,high,premium,True,healthy_fats
+419,Spinach,west_bengal,state,37.28,INR,KG,2024-01-01,winter,medium,standard,True,general
+420,Broccoli,west_bengal,state,60.99,INR,KG,2024-01-01,summer,medium,premium,False,general
+421,Bell Pepper,west_bengal,state,97.28,INR,KG,2024-01-01,summer,medium,standard,True,general
+422,Carrot,west_bengal,state,20.68,INR,KG,2024-01-01,summer,low,standard,False,general
+423,Apple,west_bengal,state,115.16,INR,KG,2024-01-01,summer,low,standard,True,general
+424,Banana,west_bengal,state,29.48,INR,KG,2024-01-01,winter,low,premium,True,general
+425,Orange,west_bengal,state,50.81,INR,KG,2024-01-01,winter,low,premium,False,general
+426,Berries,west_bengal,state,363.31,INR,KG,2024-01-01,all_year,low,economy,False,general
+427,Greek Yogurt,west_bengal,state,182.86,INR,KG,2024-01-01,all_year,medium,premium,True,general
+428,Milk,west_bengal,state,48.37,INR,KG,2024-01-01,all_year,high,standard,True,general
+429,Cottage Cheese,west_bengal,state,269.16,INR,KG,2024-01-01,all_year,medium,economy,True,general
+430,Lentils,west_bengal,state,74.04,INR,KG,2024-01-01,all_year,medium,standard,True,general
+431,Chickpeas,west_bengal,state,52.44,INR,KG,2024-01-01,all_year,medium,economy,True,general
+432,Black Beans,west_bengal,state,80.49,INR,KG,2024-01-01,monsoon,high,standard,True,general
+433,Chicken Breast,kerala,state,480.53,INR,KG,2024-01-01,summer,high,premium,False,protein
+434,Eggs,kerala,state,6.65,INR,piece,2024-01-01,all_year,low,premium,False,protein
+435,Fish,kerala,state,272.59,INR,KG,2024-01-01,monsoon,medium,standard,False,protein
+436,Paneer,kerala,state,321.61,INR,KG,2024-01-01,all_year,low,standard,False,protein
+437,Tofu,kerala,state,164.93,INR,KG,2024-01-01,all_year,medium,premium,False,general
+438,Brown Rice,kerala,state,65.72,INR,KG,2024-01-01,all_year,low,economy,False,carbs
+439,Oats,kerala,state,127.12,INR,KG,2024-01-01,all_year,low,premium,True,carbs
+440,Quinoa,kerala,state,586.12,INR,KG,2024-01-01,monsoon,low,premium,False,carbs
+441,Sweet Potato,kerala,state,43.14,INR,KG,2024-01-01,winter,low,premium,False,general
+442,Almonds,kerala,state,693.69,INR,KG,2024-01-01,winter,low,standard,False,general
+443,Walnuts,kerala,state,1009.97,INR,KG,2024-01-01,summer,medium,economy,False,healthy_fats
+444,Olive Oil,kerala,state,793.98,INR,KG,2024-01-01,monsoon,low,standard,False,healthy_fats
+445,Coconut Oil,kerala,state,392.89,INR,KG,2024-01-01,winter,high,premium,False,healthy_fats
+446,Spinach,kerala,state,34.59,INR,KG,2024-01-01,monsoon,low,economy,False,general
+447,Broccoli,kerala,state,96.34,INR,KG,2024-01-01,all_year,medium,economy,False,general
+448,Bell Pepper,kerala,state,93.61,INR,KG,2024-01-01,monsoon,medium,premium,False,general
+449,Carrot,kerala,state,34.34,INR,KG,2024-01-01,all_year,medium,standard,False,general
+450,Apple,kerala,state,96.38,INR,KG,2024-01-01,monsoon,medium,standard,True,general
+451,Banana,kerala,state,46.15,INR,KG,2024-01-01,summer,low,standard,True,general
+452,Orange,kerala,state,66.74,INR,KG,2024-01-01,summer,high,premium,False,general
+453,Berries,kerala,state,538.81,INR,KG,2024-01-01,summer,low,premium,True,general
+454,Greek Yogurt,kerala,state,271.4,INR,KG,2024-01-01,all_year,low,economy,True,general
+455,Milk,kerala,state,56.49,INR,KG,2024-01-01,winter,medium,premium,False,general
+456,Cottage Cheese,kerala,state,356.95,INR,KG,2024-01-01,winter,low,economy,False,general
+457,Lentils,kerala,state,119.83,INR,KG,2024-01-01,winter,high,premium,True,general
+458,Chickpeas,kerala,state,72.87,INR,KG,2024-01-01,winter,medium,economy,True,general
+459,Black Beans,kerala,state,163.69,INR,KG,2024-01-01,summer,high,standard,True,general
+460,Chicken Breast,karnataka,state,238.52,INR,KG,2024-01-01,summer,high,premium,True,protein
+461,Eggs,karnataka,state,4.98,INR,piece,2024-01-01,summer,high,economy,True,protein
+462,Fish,karnataka,state,263.65,INR,KG,2024-01-01,all_year,medium,standard,False,protein
+463,Paneer,karnataka,state,396.63,INR,KG,2024-01-01,all_year,medium,standard,True,protein
+464,Tofu,karnataka,state,217.3,INR,KG,2024-01-01,all_year,medium,standard,False,general
+465,Brown Rice,karnataka,state,87.65,INR,KG,2024-01-01,monsoon,low,economy,False,carbs
+466,Oats,karnataka,state,121.44,INR,KG,2024-01-01,all_year,high,premium,True,carbs
+467,Quinoa,karnataka,state,551.99,INR,KG,2024-01-01,summer,low,economy,True,carbs
+468,Sweet Potato,karnataka,state,30.39,INR,KG,2024-01-01,monsoon,medium,standard,False,general
+469,Almonds,karnataka,state,591.13,INR,KG,2024-01-01,monsoon,medium,premium,True,general
+470,Walnuts,karnataka,state,946.69,INR,KG,2024-01-01,winter,medium,premium,True,healthy_fats
+471,Olive Oil,karnataka,state,586.98,INR,KG,2024-01-01,summer,low,economy,True,healthy_fats
+472,Coconut Oil,karnataka,state,219.49,INR,KG,2024-01-01,monsoon,medium,premium,False,healthy_fats
+473,Spinach,karnataka,state,41.5,INR,KG,2024-01-01,summer,medium,premium,True,general
+474,Broccoli,karnataka,state,83.89,INR,KG,2024-01-01,winter,medium,premium,False,general
+475,Bell Pepper,karnataka,state,106.35,INR,KG,2024-01-01,monsoon,low,premium,True,general
+476,Carrot,karnataka,state,23.02,INR,KG,2024-01-01,summer,medium,premium,False,general
+477,Apple,karnataka,state,92.73,INR,KG,2024-01-01,monsoon,high,premium,False,general
+478,Banana,karnataka,state,33.98,INR,KG,2024-01-01,winter,high,premium,True,general
+479,Orange,karnataka,state,62.13,INR,KG,2024-01-01,monsoon,medium,standard,False,general
+480,Berries,karnataka,state,316.21,INR,KG,2024-01-01,all_year,high,premium,False,general
+481,Greek Yogurt,karnataka,state,219.06,INR,KG,2024-01-01,summer,medium,economy,True,general
+482,Milk,karnataka,state,58.46,INR,KG,2024-01-01,monsoon,low,standard,False,general
+483,Cottage Cheese,karnataka,state,210.14,INR,KG,2024-01-01,all_year,high,standard,False,general
+484,Lentils,karnataka,state,83.65,INR,KG,2024-01-01,all_year,low,standard,False,general
+485,Chickpeas,karnataka,state,57.12,INR,KG,2024-01-01,winter,low,premium,True,general
+486,Black Beans,karnataka,state,85.82,INR,KG,2024-01-01,winter,high,standard,True,general
+487,Chicken Breast,tamil_nadu,state,239.41,INR,KG,2024-01-01,winter,high,premium,True,protein
+488,Eggs,tamil_nadu,state,5.51,INR,piece,2024-01-01,winter,low,standard,False,protein
+489,Fish,tamil_nadu,state,274.39,INR,KG,2024-01-01,winter,high,premium,True,protein
+490,Paneer,tamil_nadu,state,441.26,INR,KG,2024-01-01,summer,high,economy,True,protein
+491,Tofu,tamil_nadu,state,131.08,INR,KG,2024-01-01,monsoon,low,premium,True,general
+492,Brown Rice,tamil_nadu,state,56.17,INR,KG,2024-01-01,summer,medium,standard,True,carbs
+493,Oats,tamil_nadu,state,111.39,INR,KG,2024-01-01,winter,low,premium,True,carbs
+494,Quinoa,tamil_nadu,state,392.37,INR,KG,2024-01-01,all_year,high,standard,False,carbs
+495,Sweet Potato,tamil_nadu,state,41.11,INR,KG,2024-01-01,all_year,low,premium,False,general
+496,Almonds,tamil_nadu,state,736.4,INR,KG,2024-01-01,summer,medium,standard,True,general
+497,Walnuts,tamil_nadu,state,797.22,INR,KG,2024-01-01,winter,medium,economy,False,healthy_fats
+498,Olive Oil,tamil_nadu,state,574.4,INR,KG,2024-01-01,all_year,low,economy,True,healthy_fats
+499,Coconut Oil,tamil_nadu,state,247.51,INR,KG,2024-01-01,winter,low,premium,False,healthy_fats
+500,Spinach,tamil_nadu,state,41.4,INR,KG,2024-01-01,monsoon,medium,economy,False,general
+501,Broccoli,tamil_nadu,state,72.88,INR,KG,2024-01-01,all_year,high,economy,False,general
+502,Bell Pepper,tamil_nadu,state,104.81,INR,KG,2024-01-01,summer,medium,standard,True,general
+503,Carrot,tamil_nadu,state,24.58,INR,KG,2024-01-01,all_year,medium,standard,False,general
+504,Apple,tamil_nadu,state,134.38,INR,KG,2024-01-01,all_year,high,economy,True,general
+505,Banana,tamil_nadu,state,28.57,INR,KG,2024-01-01,winter,low,premium,False,general
+506,Orange,tamil_nadu,state,47.58,INR,KG,2024-01-01,summer,high,premium,False,general
+507,Berries,tamil_nadu,state,446.93,INR,KG,2024-01-01,winter,medium,standard,False,general
+508,Greek Yogurt,tamil_nadu,state,163.34,INR,KG,2024-01-01,monsoon,medium,economy,False,general
+509,Milk,tamil_nadu,state,47.8,INR,KG,2024-01-01,monsoon,medium,economy,True,general
+510,Cottage Cheese,tamil_nadu,state,292.8,INR,KG,2024-01-01,all_year,medium,premium,False,general
+511,Lentils,tamil_nadu,state,90.34,INR,KG,2024-01-01,summer,medium,standard,True,general
+512,Chickpeas,tamil_nadu,state,70.63,INR,KG,2024-01-01,all_year,high,economy,True,general
+513,Black Beans,tamil_nadu,state,132.44,INR,KG,2024-01-01,summer,low,standard,False,general
+514,Chicken Breast,andhra_pradesh,state,235.69,INR,KG,2024-01-01,summer,medium,standard,True,protein
+515,Eggs,andhra_pradesh,state,4.5,INR,piece,2024-01-01,summer,medium,premium,False,protein
+516,Fish,andhra_pradesh,state,254.9,INR,KG,2024-01-01,monsoon,high,economy,False,protein
+517,Paneer,andhra_pradesh,state,362.78,INR,KG,2024-01-01,monsoon,low,economy,False,protein
+518,Tofu,andhra_pradesh,state,159.98,INR,KG,2024-01-01,summer,low,premium,True,general
+519,Brown Rice,andhra_pradesh,state,60.63,INR,KG,2024-01-01,summer,low,standard,True,carbs
+520,Oats,andhra_pradesh,state,146.69,INR,KG,2024-01-01,winter,high,premium,True,carbs
+521,Quinoa,andhra_pradesh,state,487.05,INR,KG,2024-01-01,summer,low,standard,False,carbs
+522,Sweet Potato,andhra_pradesh,state,30.37,INR,KG,2024-01-01,monsoon,medium,economy,True,general
+523,Almonds,andhra_pradesh,state,450.7,INR,KG,2024-01-01,all_year,high,standard,False,general
+524,Walnuts,andhra_pradesh,state,576.04,INR,KG,2024-01-01,summer,high,standard,True,healthy_fats
+525,Olive Oil,andhra_pradesh,state,542.95,INR,KG,2024-01-01,winter,medium,standard,True,healthy_fats
+526,Coconut Oil,andhra_pradesh,state,236.76,INR,KG,2024-01-01,winter,high,economy,True,healthy_fats
+527,Spinach,andhra_pradesh,state,32.93,INR,KG,2024-01-01,winter,medium,standard,True,general
+528,Broccoli,andhra_pradesh,state,65.88,INR,KG,2024-01-01,all_year,medium,premium,False,general
+529,Bell Pepper,andhra_pradesh,state,59.75,INR,KG,2024-01-01,monsoon,low,premium,True,general
+530,Carrot,andhra_pradesh,state,18.77,INR,KG,2024-01-01,monsoon,high,standard,True,general
+531,Apple,andhra_pradesh,state,96.71,INR,KG,2024-01-01,monsoon,high,economy,True,general
+532,Banana,andhra_pradesh,state,35.82,INR,KG,2024-01-01,summer,low,economy,False,general
+533,Orange,andhra_pradesh,state,45.34,INR,KG,2024-01-01,summer,low,standard,True,general
+534,Berries,andhra_pradesh,state,260.0,INR,KG,2024-01-01,winter,low,standard,True,general
+535,Greek Yogurt,andhra_pradesh,state,136.45,INR,KG,2024-01-01,summer,high,premium,True,general
+536,Milk,andhra_pradesh,state,36.45,INR,KG,2024-01-01,summer,medium,standard,True,general
+537,Cottage Cheese,andhra_pradesh,state,202.65,INR,KG,2024-01-01,all_year,low,premium,True,general
+538,Lentils,andhra_pradesh,state,57.33,INR,KG,2024-01-01,all_year,high,standard,False,general
+539,Chickpeas,andhra_pradesh,state,49.73,INR,KG,2024-01-01,all_year,low,standard,False,general
+540,Black Beans,andhra_pradesh,state,74.43,INR,KG,2024-01-01,all_year,medium,economy,True,general

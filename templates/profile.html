@@ -76,6 +76,15 @@
             </div>
 
             <div class="form-group">
+                <label for="split_preference">Workout Split Style</label>
+                <select id="split_preference" required>
+                    <option value="">Select...</option>
+                    <option value="default">Default (Compound Splits)</option>
+                    <option value="one_muscle_per_day">One Muscle Per Day</option>
+                </select>
+            </div>
+
+            <div class="form-group">
                 <label for="diet_type">Diet Type</label>
                 <select id="diet_type" required>
                     <option value="">Select...</option>
@@ -94,6 +103,10 @@
     </div>
 
     <script src="/static/js/app.js"></script>
+    <script>
+        // Load existing profile if editing
+        document.addEventListener('DOMContentLoaded', loadProfileData);
+    </script>
 </body>
 
 </html>

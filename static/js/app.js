@@ -13,29 +13,58 @@ function showMessage(elementId, message, type) {
     }, 5000);
 }
 
-// Register user
-async function register(event) {
+// ── Toggle password visibility ───────────────────────────────────────────────
+const EYE_OPEN = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>`;
+const EYE_OFF = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>`;
+
+function togglePw(inputId, btn) {
+    const input = document.getElementById(inputId);
+    const show = input.type === 'password';
+    input.type = show ? 'text' : 'password';
+    btn.innerHTML = show ? EYE_OFF : EYE_OPEN;
+    btn.style.color = show ? '#667eea' : '#999';
+}
+
+// ── Register User ────────────────────────────────────────────────────────
+async function registerUser(event) {
     event.preventDefault();
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
+    const confirm = document.getElementById('confirm_password').value;
+
+    if (password !== confirm) {
+        showMessage('message', 'Passwords do not match', 'error');
+        return;
+    }
+    const strengthRegex = /(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}/;
+    if (!strengthRegex.test(password)) {
+        showMessage('message', 'Password must be ≥8 chars with upper, lower and a digit', 'error');
+        return;
+    }
+
+    const btn = document.getElementById('registerBtn');
+    btn.disabled = true;
+    btn.textContent = 'Registering…';
 
     try {
-        const response = await fetch(`${API_BASE}/api/register`, {
+        const res = await fetch(`${API_BASE}/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
         });
+        const data = await res.json();
 
-        const data = await response.json();
-
-        if (response.ok) {
-            showMessage('message', 'Registration successful! Redirecting to login...', 'success');
+        if (res.ok) {
+            showMessage('message', '🎉 Account created! Redirecting to login…', 'success');
             setTimeout(() => window.location.href = '/login.html', 2000);
         } else {
             showMessage('message', data.error || 'Registration failed', 'error');
         }
-    } catch (error) {
-        showMessage('message', 'Network error: ' + error.message, 'error');
+    } catch (err) {
+        showMessage('message', 'Network error: ' + err.message, 'error');
+    } finally {
+        btn.disabled = false;
+        btn.textContent = 'Register';
     }
 }
 
@@ -84,7 +113,8 @@ async function saveProfile(event) {
         workout_days_per_week: parseInt(document.getElementById('workout_days').value),
         workout_time_minutes: parseInt(document.getElementById('workout_time').value),
         diet_type: document.getElementById('diet_type').value,
-        monthly_budget: parseFloat(document.getElementById('monthly_budget').value)
+        monthly_budget: parseFloat(document.getElementById('monthly_budget').value),
+        workout_split_preference: document.getElementById('split_preference').value
     };
 
     try {
@@ -246,38 +276,108 @@ function displayDietPlan(dietPlan) {
     container.innerHTML = html;
 }
 
-// Display workout plan - UPDATED to show all days
+// Display workout plan - accordion collapsible GIF cards
 function displayWorkoutPlan(workoutPlan) {
     if (!workoutPlan) return;
 
     const container = document.getElementById('workoutPlan');
     const plan = workoutPlan.plan;
+    const days = plan.weekly_plan || [];
 
-    let html = `<p><strong>Split:</strong> ${plan.split_type}</p>`;
-
-    if (plan.weekly_plan && plan.weekly_plan.length > 0) {
-        // Show all days in the weekly plan
-        plan.weekly_plan.forEach((day, index) => {
-            html += `<div class="workout-day" style="margin-bottom: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <h4 style="color: #667eea; margin-bottom: 10px;">${day.day_name}</h4>`;
-
-            if (day.exercises && day.exercises.length > 0) {
-                day.exercises.forEach(ex => {
-                    html += `<div class="exercise-item">
-                        <strong>${ex.name}</strong>
-                        <span>${ex.sets} sets × ${ex.reps} reps | Rest: ${ex.rest_seconds}s</span>
-                    </div>`;
-                });
-            } else {
-                html += `<p style="color: #666; font-style: italic;">Rest Day</p>`;
-            }
-
-            html += `</div>`;
-        });
+    if (days.length === 0) {
+        container.innerHTML = '<p>No workout days found. Generate a new plan!</p>';
+        return;
     }
 
-    container.innerHTML = html;
+    // ---- Build day selector tabs ----
+    let tabsHtml = `<div class="wb-split-label">💪 ${plan.split_type || ''}</div>
+    <div class="wb-day-tabs" id="wbDayTabs">`;
+    days.forEach((day, i) => {
+        const shortName = `Day ${i + 1}`;
+        tabsHtml += `<button class="wb-day-tab${i === 0 ? ' active' : ''}" onclick="showWorkoutDay(${i})">${shortName}</button>`;
+    });
+    tabsHtml += `</div>`;
+
+    // ---- Build day panels with accordion cards ----
+    let panelsHtml = '';
+    days.forEach((day, dayIdx) => {
+        panelsHtml += `<div class="wb-day-panel" id="wbPanel${dayIdx}" style="display:${dayIdx === 0 ? 'block' : 'none'}">`;
+
+        if (day.exercises && day.exercises.length > 0) {
+            day.exercises.forEach((ex, exIdx) => {
+                const gifHtml = ex.gif_url
+                    ? `<img src="${ex.gif_url}" alt="${ex.name}" class="wb-ex-gif" loading="lazy"
+                         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+                       <div class="wb-ex-gif-placeholder" style="display:none">🏋️</div>`
+                    : `<div class="wb-ex-gif-placeholder">🏋️</div>`;
+
+                // First card of each day starts expanded (class 'open')
+                const isOpen = exIdx === 0;
+                panelsHtml += `
+                <div class="wb-ex-card${isOpen ? ' open' : ''}" id="wbCard${dayIdx}_${exIdx}">
+                    <div class="wb-ex-card-header" onclick="toggleExCard(${dayIdx}, ${exIdx})">
+                        <span class="wb-ex-card-name">${ex.name}</span>
+                        <span class="wb-ex-card-meta">${ex.sets}×${ex.reps}</span>
+                        <span class="wb-ex-chevron">${isOpen ? '▲' : '▼'}</span>
+                    </div>
+                    <div class="wb-ex-card-body" style="display:${isOpen ? 'flex' : 'none'}">
+                        <div class="wb-ex-details">
+                            <div class="wb-ex-stat"><span class="wb-ex-stat-label">Sets</span><span class="wb-ex-stat-value">${ex.sets}</span></div>
+                            <div class="wb-ex-stat"><span class="wb-ex-stat-label">Reps</span><span class="wb-ex-stat-value">${ex.reps}</span></div>
+                            <div class="wb-ex-stat"><span class="wb-ex-stat-label">Rest</span><span class="wb-ex-stat-value">${ex.rest_seconds}s</span></div>
+                            <div class="wb-ex-muscle">${ex.muscle_groups || ex.category || ''}</div>
+                            <div class="wb-ex-equip">🏷️ ${ex.equipment || 'bodyweight'}</div>
+                        </div>
+                        <div class="wb-ex-gif-wrap">${gifHtml}</div>
+                    </div>
+                </div>`;
+            });
+        } else {
+            panelsHtml += `<p class="wb-rest-day">😴 Rest Day — recover and recharge!</p>`;
+        }
+
+        panelsHtml += `</div>`;
+    });
+
+    container.innerHTML = tabsHtml + panelsHtml;
 }
+
+// Toggle a single exercise card (accordion: collapse others in same day)
+function toggleExCard(dayIdx, exIdx) {
+    const clickedCard = document.getElementById(`wbCard${dayIdx}_${exIdx}`);
+    const clickedBody = clickedCard.querySelector('.wb-ex-card-body');
+    const clickedChevron = clickedCard.querySelector('.wb-ex-chevron');
+    const isCurrentlyOpen = clickedCard.classList.contains('open');
+
+    // Collapse ALL cards in this day panel first
+    const panel = document.getElementById(`wbPanel${dayIdx}`);
+    panel.querySelectorAll('.wb-ex-card').forEach(card => {
+        card.classList.remove('open');
+        card.querySelector('.wb-ex-card-body').style.display = 'none';
+        card.querySelector('.wb-ex-chevron').textContent = '▼';
+    });
+
+    // If it was closed, now open it; if it was open, leave it collapsed
+    if (!isCurrentlyOpen) {
+        clickedCard.classList.add('open');
+        clickedBody.style.display = 'flex';
+        clickedChevron.textContent = '▲';
+    }
+}
+
+// Switch visible workout day panel
+function showWorkoutDay(index) {
+    document.querySelectorAll('.wb-day-panel').forEach((p, i) => {
+        p.style.display = i === index ? 'block' : 'none';
+    });
+    document.querySelectorAll('.wb-day-tab').forEach((t, i) => {
+        t.classList.toggle('active', i === index);
+    });
+}
+
+
+
+
 
 // Adapt workout for pain
 async function adaptWorkout(event) {
@@ -290,7 +390,7 @@ async function adaptWorkout(event) {
     }
 
     try {
-        const response = await fetch(`${API_BASE}/api/adaptive-workout`, {
+        const response = await fetch(`${API_BASE}/api/adapt-workout`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
@@ -523,5 +623,55 @@ function showPlan(planType) {
         painSection.style.display = 'block';
         painToggle.style.background = '#667eea';
         painToggle.style.color = 'white';
+    }
+}
+
+// Load profile data into form (new function)
+async function loadProfileData() {
+    console.log("Loading profile data...");
+    const userId = localStorage.getItem('user_id');
+    if (!userId) {
+        return; // Not logged in, do nothing (user might be registering)
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/api/profile/${userId}`, {
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            const profile = data.profile;
+
+            // Populate form fields
+            const fields = [
+                'age', 'gender', 'height_cm', 'weight_kg', 'fitness_goal',
+                'experience_level', 'workout_days', 'workout_time',
+                'diet_type', 'monthly_budget', 'split_preference'
+            ];
+
+            // Map specific fields if names differ from HTML IDs
+            // HTML IDs: workout_days, workout_time, split_preference
+            // API Keys: workout_days_per_week, workout_time_minutes, workout_split_preference
+            const map = {
+                'workout_days': 'workout_days_per_week',
+                'workout_time': 'workout_time_minutes',
+                'split_preference': 'workout_split_preference'
+            };
+
+            fields.forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                    const key = map[id] || id;
+                    if (profile[key] !== undefined) {
+                        el.value = profile[key];
+                    }
+                }
+            });
+
+            console.log("Profile loaded successfully");
+        }
+    } catch (error) {
+        console.error('Error loading profile:', error);
     }
 }
