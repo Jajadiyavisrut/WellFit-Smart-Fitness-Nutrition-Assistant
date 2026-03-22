@@ -10,6 +10,15 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from functools import wraps
 import sys
 import os
+import time
+import smtplib
+
+# Load .env variables into os.environ BEFORE anything else reads them
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass  # dotenv not installed, rely on real environment variables
 
 # Add logic directory to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'logic'))
@@ -40,6 +49,14 @@ from validators import (
     validate_password,
     validate_profile_data
 )
+
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    _env_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.env')
+    load_dotenv(_env_path)
+except ImportError:
+    pass  # python-dotenv not installed; use system env vars
 
 # Initialize Flask app
 app = Flask(__name__)
@@ -91,6 +108,41 @@ except Exception as e:
     print(f"ERROR loading data: {e}")
     sys.exit(1)
 
+# Build exercise name → image URL lookup from free-exercise-db (GitHub)
+# Images served directly from GitHub raw CDN – no local storage needed.
+EXERCISE_GIF_LOOKUP = {}  # lowercase name → full https image URL
+_FREE_DB_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/"
+try:
+    import urllib.request as _req
+    import json as _json
+    _db_url = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json"
+    with _req.urlopen(_db_url, timeout=8) as _resp:
+        _free_exercises = _json.loads(_resp.read().decode())
+    for _ex in _free_exercises:
+        _name_key = _ex.get('name', '').lower().strip()
+        _images = _ex.get('images', [])
+        if _name_key and _images:
+            # Use the first image (frame 0) served from GitHub raw CDN
+            EXERCISE_GIF_LOOKUP[_name_key] = _FREE_DB_BASE + _images[0]
+    print(f"  - {len(EXERCISE_GIF_LOOKUP)} exercise images loaded from free-exercise-db")
+except Exception as _e:
+    print(f"WARNING: Could not load free-exercise-db images (offline?): {_e}")
+    # Fallback: try local exercises.json (old GIF lookup)
+    try:
+        import json as _json
+        _raw_exercises_path = os.path.join(os.path.dirname(__file__), 'data', 'raw', 'exercises.json')
+        with open(_raw_exercises_path, 'r') as _f:
+            _raw_exercises = _json.load(_f)
+        for _ex in _raw_exercises:
+            _name_key = _ex.get('name', '').lower().strip()
+            _gif = _ex.get('gifUrl', '')
+            if _name_key and _gif:
+                EXERCISE_GIF_LOOKUP[_name_key] = f'/gifs/{_gif}'
+        print(f"  - {len(EXERCISE_GIF_LOOKUP)} exercise GIFs loaded from local fallback")
+    except Exception as _e2:
+        print(f"WARNING: Local fallback also failed: {_e2}")
+        EXERCISE_GIF_LOOKUP = {}
+
 
 # ============================================================================
 # API ENDPOINTS
@@ -124,6 +176,14 @@ def profile_page():
 def dashboard_page():
     """Serve dashboard page"""
     return render_template('dashboard.html')
+
+
+@app.route('/gifs/<path:filename>')
+def serve_gif(filename):
+    """Serve exercise GIF files from data/raw/gifs_180x180/"""
+    from flask import send_from_directory
+    gif_dir = os.path.join(os.path.dirname(__file__), 'data', 'raw', 'gifs_180x180')
+    return send_from_directory(gif_dir, filename)
 
 
 # ============================================================================
@@ -682,9 +742,24 @@ def get_today_plan():
         
         if workout_plan:
             workout_data = dict(workout_plan[0])
+            plan_json = json.loads(workout_data['workout_data'])
+            # Inject gif_url into every exercise using fuzzy name matching
+            if 'weekly_plan' in plan_json:
+                for day in plan_json['weekly_plan']:
+                    for ex in day.get('exercises', []):
+                        ex_name_lower = ex.get('name', '').lower().strip()
+                        # Direct match
+                        gif_file = EXERCISE_GIF_LOOKUP.get(ex_name_lower)
+                        # Fuzzy: match first word(s) of exercise name against lookup keys
+                        if not gif_file:
+                            for key, val in EXERCISE_GIF_LOOKUP.items():
+                                if ex_name_lower in key or key in ex_name_lower:
+                                    gif_file = val
+                                    break
+                        ex['gif_url'] = gif_file if gif_file else None
             response['workout_plan'] = {
                 'id': workout_data['id'],
-                'plan': json.loads(workout_data['workout_data']),
+                'plan': plan_json,
                 'created_at': workout_data['created_at'],
                 'plan_date': workout_data['plan_date']
             }
