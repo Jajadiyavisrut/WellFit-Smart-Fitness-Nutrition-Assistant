@@ -25,8 +25,8 @@ function togglePw(inputId, btn) {
     btn.style.color = show ? '#667eea' : '#999';
 }
 
-// ── Step 1: Send OTP ────────────────────────────────────────────────────────
-async function sendOtp(event) {
+// ── Register User ────────────────────────────────────────────────────────
+async function registerUser(event) {
     event.preventDefault();
     const email = document.getElementById('email').value.trim();
     const password = document.getElementById('password').value;
@@ -42,12 +42,12 @@ async function sendOtp(event) {
         return;
     }
 
-    const btn = document.getElementById('sendOtpBtn');
+    const btn = document.getElementById('registerBtn');
     btn.disabled = true;
-    btn.textContent = 'Sending OTP…';
+    btn.textContent = 'Registering…';
 
     try {
-        const res = await fetch(`${API_BASE}/api/send-otp`, {
+        const res = await fetch(`${API_BASE}/api/register`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email, password })
@@ -55,65 +55,17 @@ async function sendOtp(event) {
         const data = await res.json();
 
         if (res.ok) {
-            showMessage('message', '✅ OTP sent! Check your inbox.', 'success');
-            document.getElementById('emailDisplay').textContent = email;
-            document.getElementById('registerSection').style.display = 'none';
-            document.getElementById('otpSection').style.display = 'block';
-            document.getElementById('step2bar').classList.add('active');
-            document.getElementById('otpInput').focus();
-        } else {
-            showMessage('message', data.error || 'Failed to send OTP', 'error');
-        }
-    } catch (err) {
-        showMessage('message', 'Network error: ' + err.message, 'error');
-    } finally {
-        btn.disabled = false;
-        btn.textContent = 'Send OTP';
-    }
-}
-
-// ── Step 2: Verify OTP ──────────────────────────────────────────────────────
-async function verifyOtp(event) {
-    event.preventDefault();
-    const otp = document.getElementById('otpInput').value.trim();
-
-    if (!/^\d{6}$/.test(otp)) {
-        showMessage('message', 'Enter a valid 6-digit OTP', 'error');
-        return;
-    }
-
-    const btn = document.getElementById('verifyBtn');
-    btn.disabled = true;
-    btn.textContent = 'Verifying…';
-
-    try {
-        const res = await fetch(`${API_BASE}/api/verify-otp`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ otp })
-        });
-        const data = await res.json();
-
-        if (res.ok) {
             showMessage('message', '🎉 Account created! Redirecting to login…', 'success');
             setTimeout(() => window.location.href = '/login.html', 2000);
         } else {
-            showMessage('message', data.error || 'OTP verification failed', 'error');
+            showMessage('message', data.error || 'Registration failed', 'error');
         }
     } catch (err) {
         showMessage('message', 'Network error: ' + err.message, 'error');
     } finally {
         btn.disabled = false;
-        btn.textContent = 'Verify OTP';
+        btn.textContent = 'Register';
     }
-}
-
-// ── Go back to step 1 ───────────────────────────────────────────────────────
-function goBack() {
-    document.getElementById('otpSection').style.display = 'none';
-    document.getElementById('registerSection').style.display = 'block';
-    document.getElementById('step2bar').classList.remove('active');
-    document.getElementById('otpInput').value = '';
 }
 
 // Login user

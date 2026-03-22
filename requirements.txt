@@ -9,9 +9,10 @@ Werkzeug==2.3.7
 pandas==2.1.1
 numpy==1.24.3
 
-# Development and testing
+# Development and plotting
 pytest==7.4.2
 pytest-flask==1.2.0
+matplotlib==3.8.0
 
 # Production server (optional)
 gunicorn==21.2.0

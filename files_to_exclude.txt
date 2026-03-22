@@ -1,34 +1,3 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-*.pyc
-
-# Exclude all Python files
-*.py
-
-# Exclude backend folders
-utils/
-data/
-api/
-database/
-
-# Exclude database files
-*.db
-*.sqlite
-*.sqlite3
-
-# IDE
-.vscode/
-.idea/
-.kiro/
-
-# OS
-.DS_Store
-Thumbs.db
-
 # Files and Directories NOT needed for GitHub or Deployment
 
 # 1. Sensitive Data and Credentials (CRITICAL TO EXCLUDE)
