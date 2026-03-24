@@ -259,6 +259,22 @@ def validate_diet_type(diet_type: str) -> Tuple[bool, str]:
     return True, ""
 
 
+def validate_full_name(name: Any) -> Tuple[bool, str]:
+    """
+    Optional display name (real name). Empty string is allowed.
+    """
+    if name is None or name == "":
+        return True, ""
+    if not isinstance(name, str):
+        return False, "Name must be a string"
+    s = name.strip()
+    if len(s) > 120:
+        return False, "Name must be at most 120 characters"
+    if len(s) < 1:
+        return True, ""
+    return True, ""
+
+
 def validate_budget(budget: Any) -> Tuple[bool, str]:
     """
     Validate monthly budget.
@@ -322,5 +338,10 @@ def validate_profile_data(data: Dict[str, Any]) -> Tuple[bool, str]:
         is_valid, error = validator_func(value)
         if not is_valid:
             return False, error
-    
+
+    if "full_name" in data and data["full_name"] is not None:
+        is_valid, error = validate_full_name(data["full_name"])
+        if not is_valid:
+            return False, error
+
     return True, ""

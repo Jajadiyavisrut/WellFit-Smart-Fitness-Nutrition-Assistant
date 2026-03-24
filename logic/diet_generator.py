@@ -92,6 +92,10 @@ def generate_diet_plan(
         # Heavy weight on protein, light weight on cost
         merged_data['score'] = (merged_data['protein_ratio'] * 80) + (merged_data['cost_efficiency'] * 20)
     
+    # Ensure non-veg users actually get non-veg foods by boosting their score
+    if diet_type == "non-veg":
+        merged_data.loc[merged_data['is_vegetarian'] == False, 'score'] *= 2.0
+
     # Sort by score (descending)
     merged_data = merged_data.sort_values('score', ascending=False)
     
