@@ -115,6 +115,106 @@ Users can create and edit profiles with:
 
 ---
 
+## 📈 Real-World Price Sync (data.gov.in)
+
+WellFit can refresh `food_prices_comprehensive.csv` using live mandi data from data.gov.in.
+
+### Why this is useful
+- Keeps diet budgets closer to real market movement.
+- Uses official India commodity pricing updates.
+- Preserves fallback pricing for foods not present in mandi records.
+
+### Prerequisites
+- A data.gov.in API key saved in environment variable `DATAGOV_API_KEY`.
+
+### Run sync
+
+```bash
+python data_collection/sync_food_prices_from_datagov.py
+```
+
+Optional state-specific pricing:
+
+```bash
+python data_collection/sync_food_prices_from_datagov.py --state Maharashtra
+```
+
+Optional recency tuning (default uses last 14 days):
+
+```bash
+python data_collection/sync_food_prices_from_datagov.py --last-days 7
+```
+
+### Output
+- Updates `data/processed/food_prices_comprehensive.csv`.
+- Adds a `price_source` column to show whether each row came from:
+   - `data_gov_exact`
+   - `data_gov_alias`
+   - `fallback_existing`
+   - `fallback_default`
+
+---
+
+## 🩹 Import Recovery Exercises From Kaggle
+
+If you found a useful dataset (for example, fitness rehab or pain-reduction exercises),
+you can normalize it into WellFit's recovery format.
+
+### Step 1: Download CSV from Kaggle
+- Download the dataset CSV locally from Kaggle.
+
+### Step 2: Run the importer
+
+```bash
+python data_collection/import_kaggle_recovery_exercises.py --input-csv "path/to/your/kaggle_file.csv"
+```
+
+This updates:
+- `data/processed/recovery_exercises_comprehensive.csv`
+
+By default, it merges with existing recovery rows and removes duplicates.
+
+### Optional: Replace instead of merge
+
+```bash
+python data_collection/import_kaggle_recovery_exercises.py --input-csv "path/to/your/kaggle_file.csv" --replace
+```
+
+### Output schema expected by pain logic
+- `body_part`
+- `exercise`
+- `type`
+- `duration`
+
+---
+
+## 🎞️ Import Exercise GIF Dataset
+
+If you have a dataset that maps exercise names to GIF/image URLs, you can import it directly.
+
+### Run GIF mapping import
+
+```bash
+python data_collection/import_exercise_gif_mapping.py --input-csv "path/to/your/gif_dataset.csv"
+```
+
+### Replace instead of merge
+
+```bash
+python data_collection/import_exercise_gif_mapping.py --input-csv "path/to/your/gif_dataset.csv" --replace
+```
+
+### Output used by backend
+- `data/processed/exercise_gif_mapping.csv`
+
+### Supported source column names
+- Exercise name: `exercise`, `exercise_name`, `name`, `title`, `workout`, `workout_name`
+- GIF URL: `gif_url`, `image_url`, `gif`, `image`, `url`, `media_url`
+
+The backend loads this mapping first at startup and then fills any missing exercises using built-in free-exercise-db fallbacks.
+
+---
+
 ## 🛡️ What WellFit Does NOT Do
 
 - ❌ Provide medical advice or medical diagnosis.

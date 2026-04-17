@@ -45,7 +45,8 @@ def generate_workout_plan(
     # workout_days_per_week =int(input(" 3 or workout_days_per_week > 6 = "))
     # workout_time_minutes=int(input(" 20 or workout_time_minutes > 120 =  "))
 
-    # Validate inputs
+    # WORKFLOW STEP 1: Input Collection & Validation
+    # Validate inputs to ensure they match constraints (e.g., 3-6 days, 20-120 mins)
     if fitness_goal not in ["fat_loss", "muscle_gain", "endurance"]:
         raise ValueError("fitness_goal must be 'fat_loss', 'muscle_gain', or 'endurance'")
     
@@ -58,6 +59,8 @@ def generate_workout_plan(
     if workout_time_minutes < 20 or workout_time_minutes > 120:
         raise ValueError("workout_time_minutes must be between 20 and 120")
     #####################################################################################################################################################################
+    # WORKFLOW STEP 2 (Rule 1): Database Filtration - Experience Filter
+    # Beginners receive exercises explicitly flagged as safe; Intermediates unlock more.
     # Filter exercises by experience level
     if experience_level == "beginner":
         available_exercises = exercises[
@@ -70,6 +73,8 @@ def generate_workout_plan(
             exercises['difficulty'].isin(['beginner', 'intermediate'])
         ].copy()
     
+    # WORKFLOW STEP 2 (Rule 2): Database Filtration - Split & Frequency Filter
+    # Maps the user's available days to a specific workout split logic (e.g. 5 days = Push/Pull/Legs).
     # Determine workout split based on days per week
     split_type, workout_split = _get_workout_split(workout_days_per_week, fitness_goal, split_preference)
     
@@ -215,6 +220,8 @@ def _generate_daily_workout(
             - 'exercises' (List[Dict]): Selected exercises, each including 'name', 'category', 'muscle_groups', 'equipment', 'sets', 'reps', 'rest_seconds', and 'instructions'.
     """
     ###################################################################################################################################################################
+    # WORKFLOW STEP 2 (Rule 3): Database Filtration - Anatomy/Focus Filter
+    # Filters overarching dataset down strictly to exercises that train targeted muscle groups for the day.
     # Filter exercises by focus areas
     focused_exercises = available_exercises[
         available_exercises['muscle_groups'].str.contains('|'.join(focus_areas), case=False, na=False) |
@@ -227,6 +234,8 @@ def _generate_daily_workout(
             available_exercises['category'] == 'strength'
         ].copy()
     #################################################################################################################################################
+    # WORKFLOW STEP 2 (Rule 4): Database Filtration - Volume & Selection Filter
+    # Determines exact exercise slots based on available time, and heavily prioritizes compound movements.
     # Determine number of exercises based on time
     if workout_time_minutes <= 30:
         num_exercises = 3
@@ -262,6 +271,8 @@ def _generate_daily_workout(
     else:
         selected = exercises_to_select
     
+    # WORKFLOW STEP 3: Parameter Assignment
+    # Dynamically bind Sets, Reps, and Rest times based on the core fitness goal.
     # Assign sets and reps based on goal and experience
     for _, exercise in selected.iterrows():
         sets, reps = _get_sets_and_reps(fitness_goal, experience_level, exercise)
