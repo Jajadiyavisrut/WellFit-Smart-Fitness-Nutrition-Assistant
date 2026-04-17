@@ -18,7 +18,56 @@ Architecture Rules:
 
 import pandas as pd
 import sys
+import re
+import difflib
 from typing import List, Dict, Tuple, Optional
+
+
+PAIN_INTENT_WORDS = {
+    'pain', 'hurting', 'hurt', 'hurts', 'ache', 'aching', 'sore', 'soreness',
+    'stiff', 'stiffness', 'strain', 'swelling', 'tender', 'injured', 'injury',
+    'spasm', 'numb', 'numbness', 'tingling', 'burning'
+}
+
+SEVERE_INTENT_WORDS = {
+    'severe', 'unbearable', 'sharp', 'shooting', 'cannot move', 'can\'t move',
+    'spasm', 'numb', 'numbness', 'tingling', 'burning'
+}
+
+
+BODY_PART_ALIASES = {
+    'knee': ['knee', 'knees', 'kneecap', 'patella'],
+    'lower_back': ['lower back', 'back', 'lumbar', 'spine'],
+    'shoulder': ['shoulder', 'shoulders', 'deltoid', 'rotator cuff'],
+    'neck': ['neck', 'cervical'],
+    'arm': ['arm', 'arms', 'bicep', 'biceps', 'tricep', 'triceps', 'forearm', 'forearms'],
+    'foot': ['foot', 'feet', 'heel', 'heels', 'arch'],
+    'leg': ['leg', 'legs', 'thigh', 'thighs', 'calf', 'calves', 'hamstring', 'hamstrings', 'quad', 'quads'],
+    'general': ['sick', 'ill', 'unwell', 'fever', 'fatigue', 'tired', 'exhausted']
+}
+
+
+def _has_intent_term(text: str, terms: set[str], fuzzy_threshold: float = 0.88) -> bool:
+    """Return True when text contains any term exactly or with a small typo."""
+    text_l = str(text or '').lower()
+    if not text_l:
+        return False
+
+    # Exact whole-word/phrase match.
+    for term in terms:
+        if re.search(r'\b' + re.escape(term) + r'\b', text_l):
+            return True
+
+    # Fuzzy single-token typo matching.
+    tokens = re.findall(r'[a-z0-9]+', text_l)
+    for token in tokens:
+        for term in terms:
+            if ' ' in term:
+                continue
+            if difflib.SequenceMatcher(None, token, term).ratio() >= fuzzy_threshold:
+                return True
+
+    return False
 
 
 def detect_pain_location(
@@ -40,27 +89,131 @@ def detect_pain_location(
             - immediate_action: Recommended immediate action
         Returns None if no pain detected
     """
+    if not isinstance(pain_text, str) or not pain_text.strip():
+        return None
+
     pain_text_lower = pain_text.lower()
+    has_pain_intent = _has_intent_term(pain_text_lower, PAIN_INTENT_WORDS)
+
+    def _build_result_from_body_part(body_part: str) -> Optional[Dict]:
+        subset = pain_keywords[
+            pain_keywords['body_part'].astype(str).str.lower() == str(body_part).lower()
+        ]
+        if subset.empty:
+            return None
+
+        has_severe_cue = _has_intent_term(pain_text_lower, SEVERE_INTENT_WORDS, fuzzy_threshold=0.9)
+
+        # Prefer non-medical variants by default unless severe danger cues are present.
+        if not has_severe_cue:
+            non_medical_subset = subset[
+                subset['requires_medical_attention'].astype(str).str.lower() != 'true'
+            ]
+            if not non_medical_subset.empty:
+                subset = non_medical_subset
+
+            # Map user wording to closest keyword style to avoid over-escalation.
+            symptom_term_map = [
+                ('stiff', 'stiff'),
+                ('ache', 'ache'),
+                ('aching', 'ache'),
+                ('sore', 'ache'),
+                ('swelling', 'swelling'),
+                ('strain', 'strain'),
+                ('spasm', 'spasm'),
+                ('hurt', 'pain'),
+                ('hurting', 'pain'),
+                ('hurts', 'pain'),
+                ('pain', 'pain'),
+            ]
+            for text_term, keyword_term in symptom_term_map:
+                if text_term in pain_text_lower:
+                    preferred = subset[
+                        subset['keyword'].astype(str).str.lower().str.contains(keyword_term, na=False)
+                    ]
+                    if not preferred.empty:
+                        subset = preferred
+                    break
+
+        # If any row keyword is partially represented in message tokens, prefer it.
+        text_tokens = set(re.findall(r'[a-z0-9]+', pain_text_lower))
+        scored_rows = []
+        for _, r in subset.iterrows():
+            kw_tokens = set(re.findall(r'[a-z0-9]+', str(r['keyword']).lower()))
+            overlap = len(text_tokens & kw_tokens)
+            scored_rows.append((overlap, float(r['severity_weight']), r))
+
+        scored_rows.sort(key=lambda x: (x[0], x[1]), reverse=True)
+        best = scored_rows[0][2]
+        return {
+            'body_part': best['body_part'],
+            'severity_weight': best['severity_weight'],
+            'requires_medical_attention': best['requires_medical_attention'],
+            'immediate_action': best['immediate_action'],
+            'contraindicated_exercises': best['contraindicated_exercises'],
+            'recommended_alternatives': best['recommended_alternatives']
+        }
     
     # Check each keyword
     matches = []
+    matched_body_parts = set()
     for _, row in pain_keywords.iterrows():
-        keyword = str(row['keyword']).lower()
-        if keyword in pain_text_lower:
+        keyword = str(row['keyword']).strip().lower()
+        if not keyword:
+            continue
+
+        # Match whole words/phrases to avoid false positives like "hip" inside "ship".
+        keyword_pattern = r'\b' + re.escape(keyword) + r'\b'
+        if re.search(keyword_pattern, pain_text_lower):
+            body_part = str(row['body_part']).lower().strip()
             matches.append({
                 'body_part': row['body_part'],
                 'severity_weight': row['severity_weight'],
                 'requires_medical_attention': row['requires_medical_attention'],
                 'immediate_action': row['immediate_action'],
                 'contraindicated_exercises': row['contraindicated_exercises'],
-                'recommended_alternatives': row['recommended_alternatives']
+                'recommended_alternatives': row['recommended_alternatives'],
+                'keyword_len': len(keyword)
             })
+            matched_body_parts.add(body_part)
+
+    # Add alias-derived candidates for natural language messages so phrases like
+    # "my shoulder and arm are hurting" can prefer specific body regions.
+    if has_pain_intent:
+        for body_part, aliases in BODY_PART_ALIASES.items():
+            for alias in aliases:
+                if re.search(r'\b' + re.escape(alias) + r'\b', pain_text_lower):
+                    result = _build_result_from_body_part(body_part)
+                    if result is None:
+                        continue
+
+                    # If body part is already matched by specific keyword, avoid duplicates.
+                    if str(result['body_part']).lower().strip() in matched_body_parts:
+                        continue
+
+                    result['keyword_len'] = len(alias)
+                    matches.append(result)
+                    matched_body_parts.add(str(result['body_part']).lower().strip())
+                    break
     
     if not matches:
+        # Fallback: detect body-part mentions + pain-intent words in natural phrasing,
+        # e.g., "my shoulder and arm are hurting".
+        if not has_pain_intent:
+            return None
+
+        for body_part, aliases in BODY_PART_ALIASES.items():
+            for alias in aliases:
+                if re.search(r'\b' + re.escape(alias) + r'\b', pain_text_lower):
+                    result = _build_result_from_body_part(body_part)
+                    if result is not None:
+                        return result
+
         return None
     
-    # Return the match with highest severity
-    matches.sort(key=lambda x: x['severity_weight'], reverse=True)
+    # Prefer highest severity; for ties, prefer the most specific (longest) keyword.
+    matches.sort(key=lambda x: (x['severity_weight'], x['keyword_len']), reverse=True)
+    matches[0].pop('keyword_len', None)
     return matches[0]
 
 
@@ -181,6 +334,8 @@ def modify_workout_for_pain(
             - added_exercises: List of added recovery exercises
             - modification_summary: String summary
     """
+    # WORKFLOW STEP 1: Pain Detection (NLP & Keyword Mapping)
+    # Scans user's text against dataset, isolates exact body part, and checks severity / medical flags.
     # Detect pain location
     pain_info = detect_pain_location(pain_text, pain_keywords)
     
@@ -201,14 +356,24 @@ def modify_workout_for_pain(
     affected_body_part = pain_info['body_part']
     severity_weight = pain_info['severity_weight']
     
-    # Determine severity level
-    if severity_weight >= 7:
+    # Determine severity level.
+    # Supports both 0-10 and 0-1 scales in source datasets.
+    if severity_weight <= 1.0:
+        high_threshold = 0.7
+        medium_threshold = 0.4
+    else:
+        high_threshold = 7
+        medium_threshold = 4
+
+    if severity_weight >= high_threshold:
         severity = 'high'
-    elif severity_weight >= 4:
+    elif severity_weight >= medium_threshold:
         severity = 'medium'
     else:
         severity = 'low'
     
+    # WORKFLOW STEP 2: Safety Gateway / Hard Stops
+    # If the pain severity is >7 or requires medical attention, abort workout, force rest day.
     # If severity is high or medical attention needed, recommend rest
     if severity == 'high' or pain_info['requires_medical_attention']:
         return {
@@ -226,6 +391,8 @@ def modify_workout_for_pain(
                                    "All exercises removed for safety."
         }
     
+    # WORKFLOW STEP 3: Exercise Contraindication Filtration
+    # Loops through created workout, checking every exercise against contraindications for the injured body part.
     # Modify workout - remove unsafe exercises
     modified_workout = []
     removed_exercises = []
@@ -246,6 +413,8 @@ def modify_workout_for_pain(
                 'risk_level': risk_level
             })
     
+    # WORKFLOW STEP 4: Active Recovery Injection
+    # Injects gentle, bodyweight rehabilitation movements mapped to the specific hurting body part.
     # Add recovery exercises
     recovery_list = get_recovery_exercises(affected_body_part, recovery_exercises)
     added_exercises = recovery_list
@@ -253,6 +422,8 @@ def modify_workout_for_pain(
     # Add recovery exercises to modified workout
     modified_workout.extend(recovery_list)
     
+    # WORKFLOW STEP 5: Final Output & Modification Report
+    # Generates a summary explaining what was removed for safety and what was added for recovery.
     # Create summary
     summary_parts = []
     summary_parts.append(f"Pain detected in {affected_body_part} (severity: {severity}).")

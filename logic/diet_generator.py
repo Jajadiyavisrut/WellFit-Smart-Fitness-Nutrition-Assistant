@@ -21,7 +21,9 @@ def generate_diet_plan(
     diet_type: str,
     daily_budget: float,
     food_nutrition: pd.DataFrame,
-    food_prices: pd.DataFrame
+    food_prices: pd.DataFrame,
+    allow_incomplete: bool = False,
+    target_protein_g: float | None = None,
 ) -> List[Dict]:
     """
     Generate a 1-day diet plan based on calorie target, diet type, and budget.
@@ -77,6 +79,7 @@ def generate_diet_plan(
     
     # Calculate cost efficiency (calories per rupee)
     merged_data['cost_efficiency'] = merged_data['calories_per_100g'] / (merged_data['price_per_kg'] / 10 + 0.01)
+    merged_data['protein_per_rupee'] = merged_data['protein_g'] / (merged_data['price_per_kg'] / 10 + 0.01)
     
     # Create a composite score
     if daily_budget < 100:
@@ -112,6 +115,14 @@ def generate_diet_plan(
         ("Snack", 0.10),
         ("Dinner", 0.30)
     ]
+    meal_names = [m[0] for m in meal_targets]
+    add_on_meal_index = 0
+
+    def next_meal_name() -> str:
+        nonlocal add_on_meal_index
+        meal_name = meal_names[add_on_meal_index % len(meal_names)]
+        add_on_meal_index += 1
+        return meal_name
     
     used_foods = set()
     
@@ -186,12 +197,143 @@ def generate_diet_plan(
             total_cost += cost
             used_foods.add(food['name'])
             foods_in_meal += 1
+
+    # If calorie target is nearly met but protein is low, spend remaining budget on cheap protein boosters.
+    total_protein = sum(item['protein_g'] for item in meal_plan)
+    if target_protein_g and total_protein < target_protein_g and total_cost < daily_budget:
+        protein_candidates = merged_data.sort_values('protein_per_rupee', ascending=False)
+        for _, food in protein_candidates.head(20).iterrows():
+            if total_cost >= daily_budget or total_protein >= target_protein_g:
+                break
+
+            remaining_budget = daily_budget - total_cost
+            if remaining_budget <= 0:
+                break
+
+            # Give up to 250g per booster addition, constrained by remaining budget.
+            max_affordable_g = (remaining_budget / food['price_per_kg']) * 1000
+            quantity_g = int(min(250, max_affordable_g))
+            if quantity_g < 10:
+                continue
+
+            calories = (quantity_g / 100) * food['calories_per_100g']
+            protein = (quantity_g / 100) * food['protein_g']
+            cost = (quantity_g / 1000) * food['price_per_kg']
+
+            meal_plan.append({
+                'meal': next_meal_name(),
+                'food_name': food['name'],
+                'quantity_g': int(quantity_g),
+                'calories': round(calories, 1),
+                'protein_g': round(protein, 1),
+                'cost': round(cost, 2)
+            })
+
+            total_calories += calories
+            total_cost += cost
+            total_protein += protein
+
+    # Try to utilize budget better (soft target) so daily spend is closer to user's budget.
+    # This is intentionally approximate, not strict.
+    spend_target = daily_budget * (0.9 if daily_budget >= 60 else 0.85)
+    max_spend = daily_budget * 0.995
+    calorie_ceiling = daily_calories * 1.28
+
+    if total_cost < spend_target and total_cost < max_spend:
+        balance_candidates = merged_data.sort_values(['cost_efficiency', 'protein_per_rupee'], ascending=False)
+        attempts = 0
+
+        for _, food in balance_candidates.head(30).iterrows():
+            if total_cost >= spend_target or total_cost >= max_spend:
+                break
+            if attempts > 80 or len(meal_plan) >= 28:
+                break
+
+            remaining_for_target = spend_target - total_cost
+            remaining_budget = max_spend - total_cost
+            if remaining_budget <= 1:
+                break
+
+            # Add small budget packs to approach target without sudden jumps.
+            pack_budget = min(max(remaining_for_target, 5), max(6, daily_budget * 0.18), remaining_budget)
+            quantity_g = int((pack_budget / food['price_per_kg']) * 1000)
+            if quantity_g < 20:
+                attempts += 1
+                continue
+
+            cost = (quantity_g / 1000) * food['price_per_kg']
+            calories = (quantity_g / 100) * food['calories_per_100g']
+            protein = (quantity_g / 100) * food['protein_g']
+
+            # Avoid excessive calorie overshoot unless budget is very high.
+            if total_calories + calories > calorie_ceiling and daily_budget < 220:
+                attempts += 1
+                continue
+
+            meal_plan.append({
+                'meal': next_meal_name(),
+                'food_name': food['name'],
+                'quantity_g': int(quantity_g),
+                'calories': round(calories, 1),
+                'protein_g': round(protein, 1),
+                'cost': round(cost, 2)
+            })
+
+            total_calories += calories
+            total_cost += cost
+            total_protein += protein
+            attempts += 1
+
+    # If still under budget target, add low-calorie premium items to better match spend.
+    if total_cost < spend_target and total_cost < max_spend:
+        premium_candidates = merged_data.sort_values('cost_efficiency', ascending=True)
+        attempts = 0
+
+        for _, food in premium_candidates.head(40).iterrows():
+            if total_cost >= spend_target or total_cost >= max_spend:
+                break
+            if attempts > 100 or len(meal_plan) >= 34:
+                break
+
+            remaining_for_target = spend_target - total_cost
+            remaining_budget = max_spend - total_cost
+            if remaining_budget <= 1:
+                break
+
+            pack_budget = min(max(remaining_for_target, 6), max(8, daily_budget * 0.12), remaining_budget)
+            quantity_g = int((pack_budget / food['price_per_kg']) * 1000)
+            if quantity_g < 10:
+                attempts += 1
+                continue
+
+            cost = (quantity_g / 1000) * food['price_per_kg']
+            calories = (quantity_g / 100) * food['calories_per_100g']
+            protein = (quantity_g / 100) * food['protein_g']
+
+            # Keep calorie overshoot within a practical cap.
+            if total_calories + calories > daily_calories * 1.45 and daily_budget < 220:
+                attempts += 1
+                continue
+
+            meal_plan.append({
+                'meal': next_meal_name(),
+                'food_name': food['name'],
+                'quantity_g': int(quantity_g),
+                'calories': round(calories, 1),
+                'protein_g': round(protein, 1),
+                'cost': round(cost, 2)
+            })
+
+            total_calories += calories
+            total_cost += cost
+            total_protein += protein
+            attempts += 1
     
     # Check if we met minimum requirements
-    if total_calories < daily_calories * 0.7:
+    if total_calories < daily_calories * 0.7 and not allow_incomplete:
         raise ValueError(f"Unable to generate adequate meal plan. Only {int(total_calories)} calories achieved. Budget may be too low.")
     
-    if total_cost > daily_budget:
+    if total_cost > daily_budget and not allow_incomplete:
         raise ValueError(f"Unable to stay within budget. Total cost: Rs.{total_cost:.2f}")
     
     return meal_plan

@@ -27,6 +27,123 @@ function showMessage(elementId, message, type) {
     }, 5000);
 }
 
+let _budgetHintTimer = null;
+
+function _profileField(id) {
+    return document.getElementById(id);
+}
+
+function _toNumber(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : null;
+}
+
+function _setBudgetHint(html, isLow = false) {
+    const hint = _profileField('budgetRecommendation');
+    if (!hint) return;
+
+    if (!html) {
+        hint.style.display = 'none';
+        hint.classList.remove('low');
+        hint.innerHTML = '';
+        return;
+    }
+
+    hint.innerHTML = html;
+    hint.style.display = 'block';
+    hint.classList.toggle('low', !!isLow);
+}
+
+function scheduleBudgetRecommendation() {
+    if (_budgetHintTimer) clearTimeout(_budgetHintTimer);
+    _budgetHintTimer = setTimeout(updateBudgetRecommendation, 350);
+}
+
+async function updateBudgetRecommendation() {
+    const age = _toNumber(_profileField('age')?.value);
+    const gender = _profileField('gender')?.value;
+    const heightCm = _toNumber(_profileField('height_cm')?.value);
+    const weightKg = _toNumber(_profileField('weight_kg')?.value);
+    const fitnessGoal = _profileField('fitness_goal')?.value;
+    const workoutDays = _toNumber(_profileField('workout_days')?.value);
+    const dietType = _profileField('diet_type')?.value;
+    const monthlyBudget = _toNumber(_profileField('monthly_budget')?.value);
+
+    if (
+        age == null || !gender || heightCm == null || weightKg == null ||
+        !fitnessGoal || workoutDays == null || !dietType || monthlyBudget == null
+    ) {
+        _setBudgetHint('');
+        return;
+    }
+
+    try {
+        const response = await fetch(`${API_BASE}/api/budget-guidance`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+                age: parseInt(age, 10),
+                gender,
+                height_cm: parseFloat(heightCm),
+                weight_kg: parseFloat(weightKg),
+                fitness_goal: fitnessGoal,
+                workout_days_per_week: parseInt(workoutDays, 10),
+                diet_type: dietType,
+                monthly_budget: parseFloat(monthlyBudget)
+            })
+        });
+
+        if (!response.ok) {
+            _setBudgetHint('');
+            return;
+        }
+
+        const data = await response.json();
+        const g = data?.budget_guidance;
+        if (!g) {
+            _setBudgetHint('');
+            return;
+        }
+
+        const currentMonthly = Number(monthlyBudget).toFixed(2);
+        const minMonthly = Number(g.estimated_min_monthly_budget).toFixed(2);
+        const minDaily = Number(g.estimated_min_daily_budget).toFixed(2);
+        const currentDaily = Number(g.daily_budget).toFixed(2);
+
+        let html = `<strong>Recommended minimum budget:</strong> Rs.${minMonthly}/month (about Rs.${minDaily}/day).`;
+        html += `<br><strong>Your current budget:</strong> Rs.${currentMonthly}/month (about Rs.${currentDaily}/day).`;
+
+        if (g.is_budget_low) {
+            html += '<br>Current budget may give lower calories/protein than target.';
+        } else {
+            html += '<br>Your current budget looks adequate for target planning.';
+        }
+
+        _setBudgetHint(html, g.is_budget_low);
+    } catch (_) {
+        _setBudgetHint('');
+    }
+}
+
+function initProfileBudgetGuidance() {
+    if (!_profileField('monthly_budget')) return;
+
+    const watchedIds = [
+        'age', 'gender', 'height_cm', 'weight_kg',
+        'fitness_goal', 'workout_days', 'diet_type', 'monthly_budget'
+    ];
+
+    watchedIds.forEach((id) => {
+        const el = _profileField(id);
+        if (!el) return;
+        el.addEventListener('input', scheduleBudgetRecommendation);
+        el.addEventListener('change', scheduleBudgetRecommendation);
+    });
+
+    scheduleBudgetRecommendation();
+}
+
 // ── Toggle password visibility ───────────────────────────────────────────────
 const EYE_OPEN = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>`;
 const EYE_OFF = `<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.477 0-8.268-2.943-9.542-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.477 0 8.268 2.943 9.542 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21"/></svg>`;
@@ -241,7 +358,11 @@ async function generatePlans() {
         const data = await response.json();
 
         if (response.ok) {
-            showMessage('message', 'Plans generated successfully!', 'success');
+            if (data?.diet_plan?.warning) {
+                showMessage('message', data.diet_plan.warning, 'warning');
+            } else {
+                showMessage('message', 'Plans generated successfully!', 'success');
+            }
             loadTodayPlan();
         } else {
             if (response.status === 401) {
@@ -290,31 +411,97 @@ function displayDietPlan(dietPlan) {
     if (!dietPlan) return;
 
     const container = document.getElementById('dietPlan');
-    const meals = dietPlan.meals;
+    const meals = dietPlan.meals || [];
+    const totalCalories = Number(
+        dietPlan.total_calories ?? meals.reduce((sum, m) => sum + (Number(m.calories) || 0), 0)
+    );
+    const totalProtein = Number(
+        dietPlan.total_protein ?? meals.reduce((sum, m) => sum + (Number(m.protein_g) || 0), 0)
+    );
+    const totalCost = Number(
+        dietPlan.total_cost ?? meals.reduce((sum, m) => sum + (Number(m.cost) || 0), 0)
+    );
+    const totalItems = Number(dietPlan.total_items ?? meals.length);
 
     let html = `<div class="stats">
         <div class="stat-box">
-            <h3>${dietPlan.total_cost.toFixed(2)}</h3>
+            <h3>${totalCost.toFixed(2)}</h3>
             <p>Cost (Rs.)</p>
+        </div>
+        <div class="stat-box">
+            <h3>${totalCalories.toFixed(0)}</h3>
+            <p>Total Calories</p>
+        </div>
+        <div class="stat-box">
+            <h3>${totalProtein.toFixed(1)}g</h3>
+            <p>Total Protein</p>
+        </div>
+        <div class="stat-box">
+            <h3>${totalItems}</h3>
+            <p>Total Items</p>
         </div>
     </div>`;
 
-    const mealCard = (meal) => `<div class="plan-item">
-            <h4>${meal.meal_type || 'Meal'}</h4>
-            <p><strong>${meal.food_name}</strong></p>
-            <p>Quantity: ${meal.quantity_g}g | Calories: ${meal.calories.toFixed(0)} | Protein: ${meal.protein_g.toFixed(1)}g</p>
-            <p>Cost: Rs.${meal.cost.toFixed(2)}</p>
+    if (dietPlan.warning) {
+        html += `<div class="pain-alert" style="margin-top:8px;">
+            <strong>Budget Guidance</strong>
+            <p style="margin-top:6px;">${dietPlan.warning}</p>
+            ${dietPlan.budget_guidance && dietPlan.budget_guidance.estimated_min_monthly_budget
+                ? `<p style="margin-top:6px;"><strong>Recommended minimum monthly budget:</strong> Rs.${Number(dietPlan.budget_guidance.estimated_min_monthly_budget).toFixed(2)}</p>`
+                : ''}
         </div>`;
+    }
+
+    const mealCard = (meal) => {
+        const quantity = Number(meal.quantity_g) || 0;
+        const calories = Number(meal.calories) || 0;
+        const protein = Number(meal.protein_g) || 0;
+        const cost = Number(meal.cost) || 0;
+
+        return `<div class="plan-item">
+            <p><strong>${meal.food_name}</strong></p>
+            <p>Quantity: ${quantity.toFixed(0)}g | Calories: ${calories.toFixed(0)} | Protein: ${protein.toFixed(1)}g</p>
+            <p>Cost: Rs.${cost.toFixed(2)}</p>
+        </div>`;
+    };
+
+    const mealOrder = ['Breakfast', 'Lunch', 'Snack', 'Dinner'];
+    const normalizeMealName = (meal) => {
+        const raw = String(meal?.meal || meal?.meal_type || '').trim().toLowerCase();
+        if (raw === 'breakfast') return 'Breakfast';
+        if (raw === 'lunch') return 'Lunch';
+        if (raw === 'snack' || raw === 'snacks') return 'Snack';
+        if (raw === 'dinner') return 'Dinner';
+        return 'Snack';
+    };
 
     if (!meals || meals.length === 0) {
         container.innerHTML = `${html}<p class="loading">No meals in this plan.</p>`;
         return;
     }
 
-    html += '<div class="wf-diet-meals-scroll" role="region" aria-label="Meals list">';
+    const groupedMeals = { Breakfast: [], Lunch: [], Snack: [], Dinner: [] };
     meals.forEach((meal) => {
-        html += mealCard(meal);
+        groupedMeals[normalizeMealName(meal)].push(meal);
     });
+
+    html += '<div class="wf-diet-meals-scroll" role="region" aria-label="Meals list">';
+    mealOrder.forEach((mealName) => {
+        const items = groupedMeals[mealName];
+        if (!items || items.length === 0) return;
+
+        html += `<div class="plan-item"><h4>${mealName}</h4></div>`;
+        items.forEach((meal) => {
+            html += mealCard(meal);
+        });
+    });
+    html += `<div class="plan-item">
+        <h4>Diet Summary</h4>
+        <p><strong>Total Calories:</strong> ${totalCalories.toFixed(0)} kcal</p>
+        <p><strong>Total Protein:</strong> ${totalProtein.toFixed(1)} g</p>
+        <p><strong>Total Items:</strong> ${totalItems}</p>
+        <p><strong>Total Cost:</strong> Rs.${totalCost.toFixed(2)}</p>
+    </div>`;
     html += '</div>';
 
     container.innerHTML = html;
@@ -614,6 +801,7 @@ async function loadProfileData() {
             });
 
             console.log("Profile loaded successfully");
+            scheduleBudgetRecommendation();
         }
     } catch (error) {
         console.error('Error loading profile:', error);

@@ -237,6 +237,24 @@
             border: 1px solid rgba(248, 113, 113, 0.3);
         }
 
+        .budget-guidance {
+            margin-top: 8px;
+            font-size: 12.5px;
+            line-height: 1.45;
+            color: #d8b4e2;
+            background: rgba(20, 10, 35, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 6px;
+            padding: 9px 10px;
+            display: none;
+        }
+
+        .budget-guidance.low {
+            color: #fca5a5;
+            border-color: rgba(248, 113, 113, 0.35);
+            background: rgba(248, 113, 113, 0.12);
+        }
+
         @media (max-width: 768px) {
             .form-layout {
                 flex-direction: column;
@@ -359,6 +377,7 @@
                 <div class="form-group">
                     <label for="monthly_budget">Monthly Budget (Rs.)</label>
                     <input type="number" id="monthly_budget" required min="1000" placeholder="1493">
+                    <div id="budgetRecommendation" class="budget-guidance"></div>
                 </div>
 
                 <button type="submit" class="submit-btn" id="save-btn">Save Profile & Continue</button>
@@ -370,7 +389,10 @@
     <script src="/static/js/app.js"></script>
     <script>
         // Use existing logic to load user data from token and prepopulate
-        document.addEventListener('DOMContentLoaded', loadProfileData);
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfileData();
+            initProfileBudgetGuidance();
+        });
 
         // Quick active state adjustment for save button aesthetics (already has CSS animation but just in case)
         const btn = document.getElementById('save-btn');

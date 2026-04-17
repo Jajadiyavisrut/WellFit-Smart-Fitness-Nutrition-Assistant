@@ -56,3 +56,9 @@ data_collection/
 WellFit-Smart-Fitness-Nutrition-Assistant/
 migrate_add_full_name.py
 not needed files list.txt
+
+# Local Run/Test Artifacts
+run.txt
+data/processed/exercise_gif_mapping.csv
+test_pain_handler_qa.py
+test_adapt_workout_endpoint_qa.py

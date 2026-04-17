@@ -12,6 +12,8 @@ import sys
 import os
 import time
 import smtplib
+import csv
+import re
 
 # Load .env variables into os.environ BEFORE anything else reads them
 try:
@@ -120,9 +122,156 @@ except Exception as e:
     print(f"ERROR loading data: {e}")
     sys.exit(1)
 
-# Build exercise name → image URL lookup from free-exercise-db (GitHub)
-# Images served directly from GitHub raw CDN – no local storage needed.
-EXERCISE_GIF_LOOKUP = {}  # lowercase name → full https image URL
+
+def _protein_target_grams(weight_kg: float, fitness_goal: str) -> float:
+    """Estimate daily protein target from body weight and goal."""
+    multipliers = {
+        'lose_weight': 1.0,
+        'maintain': 1.2,
+        'gain_muscle': 1.6,
+    }
+    multiplier = multipliers.get(fitness_goal, 1.2)
+    return max(40.0, float(weight_kg) * multiplier)
+
+
+def _build_budget_guidance(profile_data: dict, daily_calories: float, daily_budget: float) -> dict:
+    """
+    Compute an estimated minimum daily/monthly budget for current user targets.
+    This is heuristic guidance (not a strict hard rule).
+    """
+    diet_type = profile_data.get('diet_type', 'veg')
+    if diet_type == 'veg':
+        available_foods = FOOD_NUTRITION[FOOD_NUTRITION['is_vegetarian'] == True].copy()
+    else:
+        available_foods = FOOD_NUTRITION.copy()
+
+    merged = available_foods.merge(
+        FOOD_PRICES[['food_name', 'price_per_kg']],
+        left_on='name',
+        right_on='food_name',
+        how='left'
+    )
+
+    merged['price_per_kg'] = merged['price_per_kg'].fillna(999999)
+    merged = merged[(merged['price_per_kg'] > 0) & (merged['calories_per_100g'] > 0)]
+
+    if len(merged) == 0:
+        return {
+            'target_calories': round(float(daily_calories), 1),
+            'target_protein_g': round(_protein_target_grams(profile_data.get('weight_kg', 60), profile_data.get('fitness_goal', 'maintain')), 1),
+            'daily_budget': round(float(daily_budget), 2),
+            'estimated_min_daily_budget': round(float(daily_budget), 2),
+            'estimated_min_monthly_budget': round(float(daily_budget) * 30, 2),
+            'is_budget_low': False,
+            'note': 'Not enough pricing data to estimate budget guidance.'
+        }
+
+    merged['calories_per_rupee'] = merged['calories_per_100g'] / (merged['price_per_kg'] / 10 + 0.0001)
+    merged['protein_per_rupee'] = merged['protein_g'] / (merged['price_per_kg'] / 10 + 0.0001)
+
+    best_calories_per_rupee = float(merged['calories_per_rupee'].max())
+    best_protein_per_rupee = float(max(merged['protein_per_rupee'].max(), 0.01))
+
+    protein_target = _protein_target_grams(
+        profile_data.get('weight_kg', 60),
+        profile_data.get('fitness_goal', 'maintain')
+    )
+
+    min_for_calories = float(daily_calories) / max(best_calories_per_rupee, 0.01)
+    min_for_protein = float(protein_target) / max(best_protein_per_rupee, 0.01)
+
+    # Add margin for realistic meal composition and diversity constraints.
+    estimated_min_daily = max(min_for_calories, min_for_protein) * 1.15
+
+    # Practical guardrails: avoid unrealistically tiny estimates from outlier market prices.
+    min_rs_per_100_kcal = 2.5 if diet_type == 'veg' else 2.9
+    calorie_floor = (float(daily_calories) / 100.0) * min_rs_per_100_kcal
+    protein_floor = float(protein_target) * 0.8
+    estimated_min_daily = max(estimated_min_daily, calorie_floor, protein_floor, 60.0)
+    estimated_min_monthly = estimated_min_daily * 30
+
+    return {
+        'target_calories': round(float(daily_calories), 1),
+        'target_protein_g': round(float(protein_target), 1),
+        'daily_budget': round(float(daily_budget), 2),
+        'estimated_min_daily_budget': round(float(estimated_min_daily), 2),
+        'estimated_min_monthly_budget': round(float(estimated_min_monthly), 2),
+        'is_budget_low': float(daily_budget) < float(estimated_min_daily),
+        'note': 'Estimated from current food-price efficiency and nutrition targets.'
+    }
+
+# Build exercise name → image URL lookup
+# Priority order: user CSV mapping -> free-exercise-db -> local exercises.json.
+EXERCISE_GIF_LOOKUP = {}  # lowercase name → URL/path
+
+
+def _normalize_gif_path(value: str) -> str:
+    val = str(value or '').strip()
+    if not val:
+        return ''
+    if val.startswith('http://') or val.startswith('https://') or val.startswith('/'):
+        return val
+    return f"/gifs/{val.lstrip('/')}"
+
+
+def _is_unreliable_gif_url(url: str) -> bool:
+    """Filter known problematic remote endpoints that frequently return non-image errors."""
+    u = str(url or '').strip().lower()
+    if not u:
+        return True
+    # ExerciseDB image endpoint often returns 5xx/JSON instead of an image in browser usage.
+    if 'v2.exercisedb.io/image/' in u:
+        return True
+    return False
+
+
+def _load_local_gif_mapping() -> int:
+    """Load optional user-provided GIF mapping CSV from data/processed."""
+    mapping_path = os.path.join(
+        os.path.dirname(__file__),
+        'data',
+        'processed',
+        'exercise_gif_mapping.csv'
+    )
+    if not os.path.exists(mapping_path):
+        return 0
+
+    loaded = 0
+    try:
+        with open(mapping_path, 'r', newline='', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                row_l = {str(k).strip().lower(): (v if v is not None else '') for k, v in row.items()}
+                name = (
+                    row_l.get('exercise')
+                    or row_l.get('exercise_name')
+                    or row_l.get('name')
+                    or row_l.get('title')
+                    or ''
+                )
+                gif = (
+                    row_l.get('gif_url')
+                    or row_l.get('image_url')
+                    or row_l.get('gif')
+                    or row_l.get('image')
+                    or row_l.get('url')
+                    or ''
+                )
+                key = str(name).strip().lower()
+                url = _normalize_gif_path(gif)
+                if key and url and not _is_unreliable_gif_url(url):
+                    EXERCISE_GIF_LOOKUP[key] = url
+                    loaded += 1
+    except Exception as e:
+        print(f"WARNING: Could not load exercise_gif_mapping.csv: {e}")
+        return 0
+
+    print(f"  - {loaded} exercise GIF mappings loaded from data/processed/exercise_gif_mapping.csv")
+    return loaded
+
+
+_load_local_gif_mapping()
+
 _FREE_DB_BASE = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/exercises/"
 try:
     import urllib.request as _req
@@ -130,30 +279,134 @@ try:
     _db_url = "https://raw.githubusercontent.com/yuhonas/free-exercise-db/main/dist/exercises.json"
     with _req.urlopen(_db_url, timeout=8) as _resp:
         _free_exercises = _json.loads(_resp.read().decode())
+    _added = 0
     for _ex in _free_exercises:
         _name_key = _ex.get('name', '').lower().strip()
         _images = _ex.get('images', [])
-        if _name_key and _images:
-            # Use the first image (frame 0) served from GitHub raw CDN
+        if _name_key and _images and _name_key not in EXERCISE_GIF_LOOKUP:
             EXERCISE_GIF_LOOKUP[_name_key] = _FREE_DB_BASE + _images[0]
-    print(f"  - {len(EXERCISE_GIF_LOOKUP)} exercise images loaded from free-exercise-db")
+            _added += 1
+    print(f"  - {_added} exercise images added from free-exercise-db")
 except Exception as _e:
     print(f"WARNING: Could not load free-exercise-db images (offline?): {_e}")
-    # Fallback: try local exercises.json (old GIF lookup)
-    try:
-        import json as _json
-        _raw_exercises_path = os.path.join(os.path.dirname(__file__), 'data', 'raw', 'exercises.json')
-        with open(_raw_exercises_path, 'r') as _f:
-            _raw_exercises = _json.load(_f)
-        for _ex in _raw_exercises:
-            _name_key = _ex.get('name', '').lower().strip()
-            _gif = _ex.get('gifUrl', '')
-            if _name_key and _gif:
-                EXERCISE_GIF_LOOKUP[_name_key] = f'/gifs/{_gif}'
-        print(f"  - {len(EXERCISE_GIF_LOOKUP)} exercise GIFs loaded from local fallback")
-    except Exception as _e2:
-        print(f"WARNING: Local fallback also failed: {_e2}")
-        EXERCISE_GIF_LOOKUP = {}
+
+# Final fallback: local exercises.json (old GIF lookup), only filling missing keys.
+try:
+    import json as _json
+    _raw_exercises_path = os.path.join(os.path.dirname(__file__), 'data', 'raw', 'exercises.json')
+    with open(_raw_exercises_path, 'r') as _f:
+        _raw_exercises = _json.load(_f)
+    _added = 0
+    for _ex in _raw_exercises:
+        _name_key = _ex.get('name', '').lower().strip()
+        _gif = _ex.get('gifUrl', '')
+        if _name_key and _gif and _name_key not in EXERCISE_GIF_LOOKUP:
+            EXERCISE_GIF_LOOKUP[_name_key] = _normalize_gif_path(_gif)
+            _added += 1
+    if _added:
+        print(f"  - {_added} exercise GIFs added from local exercises.json fallback")
+except Exception as _e2:
+    print(f"WARNING: Local GIF fallback unavailable: {_e2}")
+
+
+_NAME_STOPWORDS = {
+    'machine', 'cable', 'barbell', 'dumbbell', 'bodyweight', 'assisted',
+    'male', 'female', 'with', 'and', 'the', 'a', 'an'
+}
+
+
+def _normalize_exercise_name(name: str) -> str:
+    """Normalize exercise names to improve cross-dataset GIF matching."""
+    s = str(name or '').strip().lower()
+    if not s:
+        return ''
+
+    # Remove parenthetical qualifiers like "(machine)".
+    s = re.sub(r'\([^)]*\)', ' ', s)
+
+    # Canonical replacements for common variants.
+    replacements = {
+        'push-ups': 'push up',
+        'pull-ups': 'pull up',
+        'chin-ups': 'chin up',
+        'sit-ups': 'sit up',
+        'deadlifts': 'deadlift',
+        'lunges': 'lunge',
+        'squats': 'squat',
+        'rows': 'row',
+        'presses': 'press',
+        'flyes': 'fly',
+        'tricep ': 'triceps ',
+        'bicep ': 'biceps ',
+    }
+    for old, new in replacements.items():
+        s = s.replace(old, new)
+
+    s = re.sub(r'[^a-z0-9]+', ' ', s)
+    tokens = [t for t in s.split() if t and t not in _NAME_STOPWORDS]
+
+    normalized_tokens = []
+    for t in tokens:
+        # Very light singularization to align plural variants.
+        if t.endswith('ies') and len(t) > 4:
+            t = t[:-3] + 'y'
+        elif t.endswith('s') and len(t) > 3 and not t.endswith('ss'):
+            t = t[:-1]
+        normalized_tokens.append(t)
+
+    return ' '.join(normalized_tokens)
+
+
+EXERCISE_GIF_LOOKUP_NORM = {}
+for _k, _v in EXERCISE_GIF_LOOKUP.items():
+    _nk = _normalize_exercise_name(_k)
+    if _nk and _nk not in EXERCISE_GIF_LOOKUP_NORM:
+        EXERCISE_GIF_LOOKUP_NORM[_nk] = _v
+
+EXERCISE_GIF_LOOKUP_NORM_TOKENS = {
+    _k: set(_k.split()) for _k in EXERCISE_GIF_LOOKUP_NORM.keys()
+}
+
+
+def _resolve_exercise_gif(exercise_name: str) -> str | None:
+    """Resolve the best available GIF URL for an exercise name."""
+    raw = str(exercise_name or '').strip().lower()
+    if not raw:
+        return None
+
+    # 1) Exact raw key match.
+    url = EXERCISE_GIF_LOOKUP.get(raw)
+    if url:
+        return url
+
+    # 2) Exact normalized key match.
+    norm = _normalize_exercise_name(raw)
+    if norm in EXERCISE_GIF_LOOKUP_NORM:
+        return EXERCISE_GIF_LOOKUP_NORM[norm]
+
+    # 3) Token-overlap fallback.
+    norm_tokens = set(norm.split())
+    if not norm_tokens:
+        return None
+
+    best_key = None
+    best_score = 0.0
+
+    for key, key_tokens in EXERCISE_GIF_LOOKUP_NORM_TOKENS.items():
+        inter = len(norm_tokens & key_tokens)
+        if inter == 0:
+            continue
+
+        # Recall-focused score: how much of requested exercise name is covered.
+        score = inter / max(len(norm_tokens), 1)
+        if score > best_score:
+            best_score = score
+            best_key = key
+
+    if best_key and best_score >= 0.6:
+        return EXERCISE_GIF_LOOKUP_NORM.get(best_key)
+
+    return None
 
 
 # ============================================================================
@@ -650,19 +903,35 @@ def generate_plan():
         # Step 2: Generate diet plan
         # Convert monthly budget to daily budget
         daily_budget = profile_data['monthly_budget'] / 30
-        
+        budget_guidance = _build_budget_guidance(profile_data, daily_calories, daily_budget)
+
         diet_plan = generate_diet_plan(
             daily_calories=daily_calories,
             diet_type=profile_data['diet_type'],
             daily_budget=daily_budget,
             food_nutrition=FOOD_NUTRITION,
-            food_prices=FOOD_PRICES
+            food_prices=FOOD_PRICES,
+            allow_incomplete=True,
+            target_protein_g=budget_guidance['target_protein_g']
         )
         
         # Calculate totals
         total_calories = sum(item['calories'] for item in diet_plan)
         total_protein = sum(item['protein_g'] for item in diet_plan)
         total_cost = sum(item['cost'] for item in diet_plan)
+        total_items = len(diet_plan)
+        target_protein = budget_guidance['target_protein_g']
+
+        achieved_calorie_pct = round((total_calories / daily_calories) * 100, 1) if daily_calories else 0
+        achieved_protein_pct = round((total_protein / target_protein) * 100, 1) if target_protein else 0
+
+        diet_warning = None
+        if achieved_calorie_pct < 90 or achieved_protein_pct < 90:
+            diet_warning = (
+                f"Your current budget (Rs.{profile_data['monthly_budget']:.2f}/month) may be low for full targets. "
+                f"Current plan achieves {achieved_calorie_pct}% calories and {achieved_protein_pct}% protein. "
+                f"Recommended minimum is about Rs.{budget_guidance['estimated_min_monthly_budget']:.2f}/month."
+            )
         
         # Step 3: Generate workout plan
         # Map profile fitness_goal to workout generator format
@@ -708,12 +977,19 @@ def generate_plan():
             'success': True,
             'message': 'Plans generated successfully',
             'daily_calories': daily_calories,
+            'budget_guidance': budget_guidance,
             'diet_plan': {
                 'id': diet_plan_id,
                 'meals': diet_plan,
                 'total_calories': round(total_calories, 1),
                 'total_protein': round(total_protein, 1),
-                'total_cost': round(total_cost, 2)
+                'total_cost': round(total_cost, 2),
+                'total_items': total_items,
+                'target_calories': round(float(daily_calories), 1),
+                'target_protein': round(float(target_protein), 1),
+                'achieved_calorie_pct': achieved_calorie_pct,
+                'achieved_protein_pct': achieved_protein_pct,
+                'warning': diet_warning
             },
             'workout_plan': {
                 'id': workout_plan_id,
@@ -737,6 +1013,14 @@ def get_today_plan():
     """
     try:
         user_id = session['user_id']
+        profile_data = None
+
+        profile = execute_query(
+            "SELECT * FROM user_profiles WHERE user_id = ?",
+            (user_id,)
+        )
+        if profile:
+            profile_data = dict(profile[0])
         
         # Fetch most recent diet plan (not just today's)
         diet_plan = execute_query("""
@@ -770,10 +1054,50 @@ def get_today_plan():
         
         if diet_plan:
             diet_data = dict(diet_plan[0])
+            meals = json.loads(diet_data['diet_data'])
+            total_calories = round(sum(float(item.get('calories', 0)) for item in meals), 1)
+            total_protein = round(sum(float(item.get('protein_g', 0)) for item in meals), 1)
+            total_items = len(meals)
+            target_calories = None
+            target_protein = None
+            achieved_calorie_pct = None
+            achieved_protein_pct = None
+            warning = None
+            budget_guidance = None
+
+            if profile_data:
+                target_calories = calculate_daily_calories(
+                    age=profile_data['age'],
+                    gender=profile_data['gender'],
+                    height_cm=profile_data['height_cm'],
+                    weight_kg=profile_data['weight_kg'],
+                    goal=profile_data['fitness_goal'],
+                    workout_days_per_week=profile_data['workout_days_per_week']
+                )
+                daily_budget = float(profile_data['monthly_budget']) / 30.0
+                budget_guidance = _build_budget_guidance(profile_data, target_calories, daily_budget)
+                target_protein = budget_guidance['target_protein_g']
+                achieved_calorie_pct = round((total_calories / target_calories) * 100, 1) if target_calories else 0
+                achieved_protein_pct = round((total_protein / target_protein) * 100, 1) if target_protein else 0
+                if achieved_calorie_pct < 90 or achieved_protein_pct < 90:
+                    warning = (
+                        f"Budget may be low for full targets: {achieved_calorie_pct}% calories, "
+                        f"{achieved_protein_pct}% protein achieved."
+                    )
+
             response['diet_plan'] = {
                 'id': diet_data['id'],
-                'meals': json.loads(diet_data['diet_data']),
+                'meals': meals,
                 'total_cost': diet_data['total_cost'],
+                'total_calories': total_calories,
+                'total_protein': total_protein,
+                'total_items': total_items,
+                'target_calories': target_calories,
+                'target_protein': target_protein,
+                'achieved_calorie_pct': achieved_calorie_pct,
+                'achieved_protein_pct': achieved_protein_pct,
+                'warning': warning,
+                'budget_guidance': budget_guidance,
                 'created_at': diet_data['created_at'],
                 'plan_date': diet_data['plan_date']
             }
@@ -785,15 +1109,7 @@ def get_today_plan():
             if 'weekly_plan' in plan_json:
                 for day in plan_json['weekly_plan']:
                     for ex in day.get('exercises', []):
-                        ex_name_lower = ex.get('name', '').lower().strip()
-                        # Direct match
-                        gif_file = EXERCISE_GIF_LOOKUP.get(ex_name_lower)
-                        # Fuzzy: match first word(s) of exercise name against lookup keys
-                        if not gif_file:
-                            for key, val in EXERCISE_GIF_LOOKUP.items():
-                                if ex_name_lower in key or key in ex_name_lower:
-                                    gif_file = val
-                                    break
+                        gif_file = _resolve_exercise_gif(ex.get('name', ''))
                         ex['gif_url'] = gif_file if gif_file else None
             response['workout_plan'] = {
                 'id': workout_data['id'],
@@ -1074,18 +1390,61 @@ def adaptive_workout():
             recovery_exercises=RECOVERY_EXERCISES
         )
 
+        response_message = 'Workout adaptation processed.'
+
         if modification_result.get('pain_detected'):
             bp = modification_result.get('affected_body_part')
-            mw = modification_result.get('added_exercises') or []
-            mw.extend(_generic_mobility_suggestions(bp))
-            
-            modification_result['modified_workout'] = mw
-            modification_result['removed_exercises'] = today_workout
-            modification_result['modification_summary'] = (
-                f"Pain detected in {bp} ({modification_result.get('severity')}). "
-                "Switched your entire workout today to a dedicated mobility and recovery flow to prioritize your healing."
+            severity = modification_result.get('severity')
+            medical_attention = bool(modification_result.get('medical_attention_needed'))
+            safe_plan = modification_result.get('modified_workout') or []
+            removed_count = len(modification_result.get('removed_exercises') or [])
+
+            if severity == 'high' or medical_attention:
+                modification_result['modified_workout'] = []
+                modification_result['removed_exercises'] = today_workout
+                modification_result['added_exercises'] = []
+                modification_result['mobility_only'] = True
+                modification_result['modification_summary'] = (
+                    f"Pain detected in {bp} ({severity}). Rest-only recommendation for today for safety."
+                )
+                response_message = (
+                    'High-severity pain detected. Workout paused for today; please prioritize rest.'
+                )
+            elif len(safe_plan) == 0:
+                mobility_plan = _generic_mobility_suggestions(bp)
+                modification_result['modified_workout'] = mobility_plan
+                modification_result['mobility_only'] = True
+                modification_result['modification_summary'] = (
+                    f"Pain detected in {bp} ({severity}). All planned exercises were filtered out for safety; "
+                    "replaced with gentle mobility work."
+                )
+                response_message = (
+                    'Unsafe exercises were removed and replaced with gentle mobility for recovery today.'
+                )
+            else:
+                modification_result['mobility_only'] = False
+                if removed_count > 0:
+                    response_message = (
+                        'Unsafe exercises were removed and your safe exercises were kept with recovery support.'
+                    )
+                else:
+                    response_message = (
+                        'No high-risk exercise detected from your pain feedback; plan kept with recovery guidance.'
+                    )
+        else:
+            modification_result['mobility_only'] = False
+            response_message = 'No pain keyword detected. Kept today\'s workout unchanged.'
+
+        if 'weekly_plan' in current_plan and len(current_plan['weekly_plan']) > 0:
+            current_plan['weekly_plan'][0]['exercises'] = modification_result.get('modified_workout') or []
+            execute_update(
+                """
+                UPDATE workout_plans
+                SET workout_data = ?
+                WHERE id = ?
+                """,
+                (json.dumps(current_plan), workout_plan_id)
             )
-            modification_result['mobility_only'] = True
 
         pain_report_id = execute_insert("""
             INSERT INTO pain_reports (
@@ -1100,7 +1459,7 @@ def adaptive_workout():
         return jsonify({
             'success': True,
             'mobility_only': modification_result.get('mobility_only', False),
-            'message': 'Workout fully adapted to focus on your recovery today.',
+            'message': response_message,
             'pain_report_id': pain_report_id,
             'pain_detected': modification_result['pain_detected'],
             'affected_body_part': modification_result['affected_body_part'],
@@ -1276,6 +1635,66 @@ def calculate_calories():
         return jsonify({'error': f'Internal error: {str(e)}'}), 500
 
 
+@app.route('/api/budget-guidance', methods=['POST'])
+@login_required
+def budget_guidance():
+    """
+    Return recommended minimum budget guidance from profile-like inputs.
+
+    Request Body:
+        {
+            "age": int,
+            "gender": "male"|"female",
+            "height_cm": float,
+            "weight_kg": float,
+            "fitness_goal": "lose_weight"|"maintain"|"gain_muscle",
+            "workout_days_per_week": int,
+            "diet_type": "veg"|"non-veg",
+            "monthly_budget": float
+        }
+    """
+    try:
+        data = request.get_json()
+        required = [
+            'age', 'gender', 'height_cm', 'weight_kg',
+            'fitness_goal', 'workout_days_per_week', 'diet_type', 'monthly_budget'
+        ]
+        is_valid, error = validate_required_fields(data, required)
+        if not is_valid:
+            return jsonify({'error': error}), 400
+
+        daily_calories = calculate_daily_calories(
+            age=int(data['age']),
+            gender=data['gender'],
+            height_cm=float(data['height_cm']),
+            weight_kg=float(data['weight_kg']),
+            goal=data['fitness_goal'],
+            workout_days_per_week=int(data['workout_days_per_week'])
+        )
+
+        monthly_budget = float(data['monthly_budget'])
+        daily_budget = monthly_budget / 30.0
+
+        profile_like = {
+            'diet_type': data['diet_type'],
+            'weight_kg': float(data['weight_kg']),
+            'fitness_goal': data['fitness_goal'],
+            'monthly_budget': monthly_budget,
+        }
+        guidance = _build_budget_guidance(profile_like, daily_calories, daily_budget)
+
+        return jsonify({
+            'success': True,
+            'daily_calories': daily_calories,
+            'budget_guidance': guidance
+        })
+
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+    except Exception as e:
+        return jsonify({'error': f'Internal error: {str(e)}'}), 500
+
+
 @app.route('/api/diet', methods=['POST'])
 def generate_diet():
     """
@@ -1311,19 +1730,33 @@ def generate_diet():
             diet_type=data['diet_type'],
             daily_budget=float(data['daily_budget']),
             food_nutrition=FOOD_NUTRITION,
-            food_prices=FOOD_PRICES
+            food_prices=FOOD_PRICES,
+            allow_incomplete=True
         )
         
         # Calculate totals
         total_calories = sum(item['calories'] for item in meal_plan)
         total_protein = sum(item['protein_g'] for item in meal_plan)
         total_cost = sum(item['cost'] for item in meal_plan)
+        total_items = len(meal_plan)
+        target_calories = float(data['daily_calories'])
+        achieved_calorie_pct = round((total_calories / target_calories) * 100, 1) if target_calories else 0
+        warning = None
+        if achieved_calorie_pct < 90:
+            warning = (
+                f"Budget may be low for target calories. Achieved {achieved_calorie_pct}% "
+                f"of target calories."
+            )
         
         return jsonify({
             'diet_plan': meal_plan,
             'total_calories': round(total_calories, 1),
             'total_protein': round(total_protein, 1),
             'total_cost': round(total_cost, 2),
+            'total_items': total_items,
+            'target_calories': round(target_calories, 1),
+            'achieved_calorie_pct': achieved_calorie_pct,
+            'warning': warning,
             'success': True
         })
         
