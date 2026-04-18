@@ -1317,7 +1317,6 @@ def adaptive_workout():
             })
 
         workout_data = dict(workout_plan[0])
-        workout_plan_id = workout_data['id']
         current_plan = json.loads(workout_data['workout_data'])
 
         today_workout = []
@@ -1425,26 +1424,19 @@ def adaptive_workout():
                 modification_result['mobility_only'] = False
                 if removed_count > 0:
                     response_message = (
-                        'Unsafe exercises were removed and your safe exercises were kept with recovery support.'
+                        'Pain guidance prepared. Your main workout plan is unchanged; use this adjusted list only in the pain section.'
                     )
                 else:
                     response_message = (
-                        'No high-risk exercise detected from your pain feedback; plan kept with recovery guidance.'
+                        'Pain guidance prepared. Your main workout plan is unchanged.'
                     )
         else:
             modification_result['mobility_only'] = False
-            response_message = 'No pain keyword detected. Kept today\'s workout unchanged.'
-
-        if 'weekly_plan' in current_plan and len(current_plan['weekly_plan']) > 0:
-            current_plan['weekly_plan'][0]['exercises'] = modification_result.get('modified_workout') or []
-            execute_update(
-                """
-                UPDATE workout_plans
-                SET workout_data = ?
-                WHERE id = ?
-                """,
-                (json.dumps(current_plan), workout_plan_id)
-            )
+            response_message = 'No pain keyword detected. Main workout remains unchanged.'
+            # Keep pain section independent from the main workout section.
+            modification_result['modified_workout'] = []
+            modification_result['removed_exercises'] = []
+            modification_result['added_exercises'] = []
 
         pain_report_id = execute_insert("""
             INSERT INTO pain_reports (
@@ -1458,6 +1450,7 @@ def adaptive_workout():
 
         return jsonify({
             'success': True,
+            'preview_only': True,
             'mobility_only': modification_result.get('mobility_only', False),
             'message': response_message,
             'pain_report_id': pain_report_id,

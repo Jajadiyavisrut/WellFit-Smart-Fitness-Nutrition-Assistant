@@ -632,7 +632,6 @@ async function adaptWorkout(event) {
 
         if (response.ok) {
             showPainAlert(data);
-            loadTodayPlan();
             document.getElementById('painText').value = '';
         } else {
             if (response.status === 401) {
@@ -654,11 +653,15 @@ function showPainAlert(data) {
     const alert = document.getElementById('painAlert');
     const mobility = data.mobility_only === true;
     const title = mobility
-        ? (data.no_workout_today ? 'No workout saved for today' : 'Recovery & mobility')
-        : `Workout updated for ${data.affected_body_part || 'your feedback'}`;
+        ? (data.no_workout_today ? 'No workout saved for today' : 'Recovery & mobility guidance')
+        : `Pain guidance for ${data.affected_body_part || 'your feedback'}`;
 
     const msgBlock = data.message
         ? `<p style="margin:10px 0 0; line-height:1.5; color: inherit;">${data.message}</p>`
+        : '';
+
+    const separationNote = data.preview_only
+        ? `<p style="margin:8px 0 0; font-size:0.88rem; opacity:0.9;">This pain/discomfort section is separate. Main workout tab remains unchanged.</p>`
         : '';
 
     alert.innerHTML = `
@@ -668,6 +671,7 @@ function showPainAlert(data) {
             ${data.severity ? `Severity: ${data.severity}` : ''}
             ${data.medical_attention_needed ? ' · If pain is severe or worsening, seek professional care.' : ''}
         </p>
+        ${separationNote}
         ${msgBlock}
         ${data.modification_summary ? `<p style="margin:10px 0 0; font-size:0.88rem; opacity:0.9;">${data.modification_summary}</p>` : ''}
         ${data.immediate_action ? `<p style="margin:10px 0 0;"><em>${data.immediate_action}</em></p>` : ''}
